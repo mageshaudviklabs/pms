@@ -4,21 +4,22 @@ import * as XLSX from 'xlsx';
 import Sidebar from './components/Sidebar';
 import TopHeader from './components/TopHeader';
 import TaskTable from './components/TaskTable';
-import CapacityTrends from './components/CapacityTrends';
+import ProjectsList from './components/ProjectsList';
 import LeadCard from './components/LeadCard';
 import TaskFormModal from './components/TaskFormModal';
+import LeadDetailModal from './components/LeadDetailModal';
 import { LEADS } from './constants';
 import { Plus, Upload, Trash2 } from 'lucide-react';
-import { TaskRecord } from './types';
+import { TaskRecord, Lead } from './types';
 
 const App: React.FC = () => {
   const [activeNav, setActiveNav] = useState('command');
   const [tasks, setTasks] = useState<TaskRecord[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Derive Lead data from current task list (Sorted by task count ascending)
   const dynamicLeads = useMemo(() => {
     const mappedLeads = LEADS.map(lead => {
       const leadTasks = tasks.filter(t => 
@@ -84,7 +85,7 @@ const App: React.FC = () => {
         setTasks(prevTasks => [...prevTasks, ...importedTasks]);
       } catch (error) {
         console.error('Error parsing Excel file:', error);
-        alert('Error parsing file. Ensure column names match headers in your template image.');
+        alert('Error parsing file.');
       } finally {
         setIsImporting(false);
         if (fileInputRef.current) fileInputRef.current.value = '';
@@ -100,16 +101,16 @@ const App: React.FC = () => {
       <main className="flex-1 ml-64 transition-all duration-300">
         <TopHeader />
         
-        <div className="p-10 max-w-[1600px] mx-auto space-y-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div className="space-y-4 max-w-2xl">
-              <h1 className="text-5xl font-black tracking-tight text-slate-900">Command Center</h1>
-              <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                Centralized lifecycle hub. Integrated support for Repo links, mission-specific tasks, and full project assignments.
+        <div className="p-6 md:p-8 max-w-[1500px] mx-auto space-y-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">Command Center</h1>
+              <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                Centralized lifecycle hub. Integrated support for Repo links and project assignments.
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -121,63 +122,65 @@ const App: React.FC = () => {
               {tasks.length > 0 && (
                 <button 
                   onClick={handleClearTasks}
-                  className="flex items-center gap-3 px-6 py-4 bg-white border-2 border-rose-100 text-rose-500 rounded-2xl text-xs font-black shadow-sm hover:bg-rose-50 transition-all uppercase tracking-widest"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-rose-100 text-rose-500 rounded-xl text-[10px] font-black shadow-sm hover:bg-rose-50 transition-all uppercase tracking-widest"
                 >
-                  <Trash2 size={16} />
-                  Reset Hub
+                  <Trash2 size={14} />
+                  Reset
                 </button>
               )}
 
               <button 
                 onClick={handleImportClick}
                 disabled={isImporting}
-                className="flex items-center gap-3 px-8 py-4 bg-white border-2 border-slate-100 text-slate-800 rounded-2xl text-xs font-black shadow-sm hover:border-[#8A7AB5]/30 hover:bg-slate-50 transition-all uppercase tracking-widest disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-100 text-slate-800 rounded-xl text-[10px] font-black shadow-sm hover:border-[#8A7AB5]/30 hover:bg-slate-50 transition-all uppercase tracking-widest disabled:opacity-50"
               >
-                <Upload size={16} className="text-[#8A7AB5]" />
-                {isImporting ? 'Processing...' : 'Upload Stream'}
+                <Upload size={14} className="text-[#8A7AB5]" />
+                {isImporting ? '...' : 'Upload'}
               </button>
 
               <button 
                 onClick={() => setIsFormOpen(true)}
-                className="flex items-center gap-3 px-8 py-4 bg-sky-400 text-white rounded-2xl text-xs font-black shadow-xl shadow-sky-400/20 hover:bg-sky-500 transition-all uppercase tracking-widest active:scale-95"
+                className="flex items-center gap-2 px-6 py-2.5 bg-sky-400 text-white rounded-xl text-[10px] font-black shadow-lg shadow-sky-400/20 hover:bg-sky-500 transition-all uppercase tracking-widest active:scale-95"
               >
-                <Plus size={18} />
-                New Workstream
+                <Plus size={16} />
+                New Task
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-            <div className="xl:col-span-8 space-y-8">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <div className="xl:col-span-8 space-y-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Lead Assignment Ranking</h3>
-                </div>
-                <span className="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black rounded-lg uppercase tracking-widest">
-                  Capacity Optimized
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Assignment Ranking</h3>
+                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-black rounded uppercase tracking-wider">
+                  Optimized
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {dynamicLeads.map(lead => (
-                  <LeadCard key={lead.id} lead={lead} />
+                  <LeadCard 
+                    key={lead.id} 
+                    lead={lead} 
+                    onClick={() => setSelectedLead(lead)}
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="xl:col-span-4 sticky top-28">
-              <CapacityTrends />
+            <div className="xl:col-span-4 sticky top-24">
+              <ProjectsList />
             </div>
           </div>
 
-          <div className="space-y-6 pt-12 border-t border-slate-100">
+          <div className="space-y-5 pt-8 border-t border-slate-100">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-1.5 h-8 bg-[#8A7AB5] rounded-full" />
-                <h3 className="text-2xl font-bold text-slate-900">Aggregate Task Stream</h3>
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-6 bg-[#8A7AB5] rounded-full" />
+                <h3 className="text-xl font-bold text-slate-900">Task Stream</h3>
               </div>
-              <div className="flex items-center gap-3 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                Aggregated {tasks.length} Records
+              <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                {tasks.length} Records
               </div>
             </div>
 
@@ -190,6 +193,12 @@ const App: React.FC = () => {
         isOpen={isFormOpen} 
         onClose={() => setIsFormOpen(false)} 
         onAdd={handleAddTask} 
+      />
+
+      <LeadDetailModal 
+        lead={selectedLead}
+        onClose={() => setSelectedLead(null)}
+        allTasks={tasks}
       />
     </div>
   );

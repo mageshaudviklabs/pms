@@ -80,6 +80,14 @@ export const LEADS: Lead[] = [
   }
 ];
 
+export const PROJECTS = [
+  { id: 'P1', name: 'Genesis Phase 1', status: 'Active', members: 4, health: 92 },
+  { id: 'P2', name: 'Cloud Migration', status: 'Delayed', members: 2, health: 65 },
+  { id: 'P3', name: 'Alpha Mobile SDK', status: 'Active', members: 5, health: 88 },
+  { id: 'P4', name: 'Beta Analytics Tool', status: 'Review', members: 3, health: 95 },
+  { id: 'P5', name: 'Security Audit v2', status: 'Pending', members: 0, health: 0 },
+];
+
 export const INITIAL_TASKS: TaskRecord[] = [];
 
 export const CAPACITY_TRENDS: TrendItem[] = [

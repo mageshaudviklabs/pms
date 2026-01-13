@@ -9,16 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@headlessui/react": "^2.2.9",
-    "@mui/material": "^7.3.7",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "framer-motion": "^12.26.1",
-    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-modal": "^3.16.3",
+    "lucide-react": "^0.562.0",
     "xlsx": "0.18.5"
   },
   "devDependencies": {

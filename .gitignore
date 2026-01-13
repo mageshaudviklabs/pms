@@ -1,6 +1,7 @@
 # Frontend
-FrontEnd/node_modules/
-FrontEnd/.env.local
+frontend/node_modules
+frontend/.env*
+
 
 # General
 node_modules/
