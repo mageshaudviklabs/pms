@@ -1,92 +1,20 @@
-# PMS Frontend
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
 
-This directory contains the **Frontend application** for the PMS (Project Management System).
+# Run and deploy your AI Studio app
 
-The frontend is built using **React + TypeScript + Vite** and provides the user interface for dashboards, project tracking, task management, and backend interaction.
+This contains everything you need to run your app locally.
 
----
+View your app in AI Studio: https://ai.studio/apps/drive/1w5sZ8QC0uqxCvAChDYWW5Cczl6SinR1w
 
-## 🚀 Tech Stack
+## Run Locally
 
-- React (TypeScript)
-- Vite
-- Tailwind CSS
-- Axios / Fetch API
-
----
-
-## 📁 Project Structure
-
-FrontEnd/
-│── components/
-│   ├── CapacityTrends.tsx
-│   ├── LeadCard.tsx
-│   ├── LeadDetailModal.tsx
-│   ├── ProjectsList.tsx
-│   ├── Sidebar.tsx
-│   ├── SpecialistCard.tsx
-│   ├── TaskFormModal.tsx
-│   ├── TaskTable.tsx
-│   └── TopHeader.tsx
-│
-│── App.tsx
-│── index.tsx
-│── index.html
-│── constants.tsx
-│── types.ts
-│── metadata.json
-│── vite.config.ts
-│── tsconfig.json
-│── package.json
-│── package-lock.json
-│── README.md   ✅
-│── .gitignore  ✅
+**Prerequisites:**  Node.js
 
 
----
-
-## 🛠️ Getting Started
-
-### 1️⃣ Install dependencies
-npm install
-
-### 2️⃣ Start development server
-npm run dev
-
-The application will be available at:
-http://localhost:5173
-
----
-
-## 🔗 Backend API Integration
-
-- The frontend communicates with the PMS backend via REST APIs.
-- API base URLs should be configured using environment variables.
-
-Example:
-VITE_API_BASE_URL=http://localhost:8000
-
-⚠️ Do NOT commit .env or .env.local files.
-
----
-
-## 📦 Build for Production
-
-npm run build
-
-The production-ready files will be generated inside the dist/ directory.
-
----
-
-## 👥 Team Guidelines
-
-- Do not commit node_modules
-- Always pull the latest changes before pushing
-- Keep components modular and reusable
-- Follow consistent naming conventions
-
----
-
-## 📌 Notes
-
-This frontend is designed to integrate seamlessly with the PMS backend services and may evolve as backend APIs expand.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

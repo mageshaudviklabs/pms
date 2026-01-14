@@ -1,13 +1,17 @@
 
 import React from 'react';
 import { TaskRecord } from '../types';
-import { CheckCircle2, AlertCircle, Timer, XCircle, MoreVertical, Upload, Link } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Timer, XCircle, Edit2, Trash2, Link, Upload } from 'lucide-react';
 
 interface Props {
   tasks: TaskRecord[];
+  onEdit?: (task: TaskRecord) => void;
+  onDelete?: (taskId: string) => void;
 }
 
-const TaskTable: React.FC<Props> = ({ tasks }) => {
+const TaskTable: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
+  const showActions = !!onEdit || !!onDelete;
+
   const getStatusStyle = (status: TaskRecord['completionStatus']) => {
     switch (status) {
       case 'Completed': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
@@ -40,12 +44,12 @@ const TaskTable: React.FC<Props> = ({ tasks }) => {
               <th className="px-5 py-3 text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em] text-center">Timing</th>
               <th className="px-5 py-3 text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em]">Status</th>
               <th className="px-5 py-3 text-[9px] font-bold text-gray-400 uppercase tracking-[0.1em]">Remarks</th>
-              <th className="px-5 py-3"></th>
+              {showActions && <th className="px-5 py-3 text-right">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {tasks.map((task, idx) => (
-              <tr key={idx} className="hover:bg-[#8A7AB5]/5 transition-colors group">
+              <tr key={task.id || idx} className="hover:bg-[#8A7AB5]/5 transition-colors group">
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-[#8A7AB5] text-[10px] font-black">
@@ -98,11 +102,30 @@ const TaskTable: React.FC<Props> = ({ tasks }) => {
                     {task.remarks}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-right">
-                  <button className="p-1.5 text-gray-300 hover:text-gray-500 transition-colors">
-                    <MoreVertical size={14} />
-                  </button>
-                </td>
+                {showActions && (
+                  <td className="px-5 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {onEdit && (
+                        <button 
+                          onClick={() => onEdit(task)}
+                          className="p-1.5 text-slate-400 hover:text-[#8A7AB5] hover:bg-[#8A7AB5]/10 rounded-lg transition-all"
+                          title="Edit Workstream"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button 
+                          onClick={() => onDelete(task.id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                          title="Terminate Task"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
