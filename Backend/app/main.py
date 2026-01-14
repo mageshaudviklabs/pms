@@ -1,15 +1,15 @@
 from fastapi import FastAPI
-import uvicorn
+from routers.employees import router as employee_router
+from routers.tasks import router as task_router
 
-
-app = FastAPI()
-
+app = FastAPI(
+    title="PMS Backend",
+    description="Project Management System API"
+)
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World, this is from the backend"}   
+def root():
+    return {"message": "Manager Dashboard"}
 
-
-if __name__ == "__main__":
-    
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+app.include_router(employee_router)
+app.include_router(task_router)

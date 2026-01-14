@@ -1,0 +1,108 @@
+[
+  {
+    "employeeId": "EMP001",
+    "employeeName": "Arun Kumar",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Develop REST APIs for PMS module",
+    "noOfActiveProjects": 3
+  },
+  {
+    "employeeId": "EMP002",
+    "employeeName": "Priya Sharma",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Design dashboard UI using React",
+    "noOfActiveProjects": 2
+  },
+  {
+    "employeeId": "EMP003",
+    "employeeName": "Ravi Teja",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Perform unit and integration testing",
+    "noOfActiveProjects": 1
+  },
+  {
+    "employeeId": "EMP004",
+    "employeeName": "Sneha Iyer",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Create database schema and relations",
+    "noOfActiveProjects": 4
+  },
+  {
+    "employeeId": "EMP005",
+    "employeeName": "Vikram Singh",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Optimize backend performance",
+    "noOfActiveProjects": 2
+  },
+  {
+    "employeeId": "EMP006",
+    "employeeName": "Anjali Patel",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Prepare project documentation",
+    "noOfActiveProjects": 1
+  },
+  {
+    "employeeId": "EMP007",
+    "employeeName": "Rahul Mehta",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Implement authentication and authorization",
+    "noOfActiveProjects": 3
+  },
+  {
+    "employeeId": "EMP008",
+    "employeeName": "Kavya Nair",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Design user experience flows",
+    "noOfActiveProjects": 2
+  },
+  {
+    "employeeId": "EMP009",
+    "employeeName": "Suresh Reddy",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Handle deployment and CI/CD pipeline",
+    "noOfActiveProjects": 4
+  },
+  {
+    "employeeId": "EMP010",
+    "employeeName": "Neha Verma",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Create automated test cases",
+    "noOfActiveProjects": 2
+  },
+  {
+    "employeeId": "EMP011",
+    "employeeName": "Karthik Raj",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Integrate frontend with backend APIs",
+    "noOfActiveProjects": 3
+  },
+  {
+    "employeeId": "EMP012",
+    "employeeName": "Pooja Malhotra",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Prepare performance reports",
+    "noOfActiveProjects": 1
+  },
+  {
+    "employeeId": "EMP013",
+    "employeeName": "Amit Choudhary",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Implement task management module",
+    "noOfActiveProjects": 3
+  },
+  {
+    "employeeId": "EMP014",
+    "employeeName": "Divya Srinivasan",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Design analytics dashboard",
+    "noOfActiveProjects": 2
+  },
+  {
+    "employeeId": "EMP015",
+    "employeeName": "Manoj K",
+    "date": "2026-01-14",
+    "currentTaskDetails": "Review code and manage pull requests",
+    "noOfActiveProjects": 5
+  }
+]
+ 
