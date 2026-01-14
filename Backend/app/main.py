@@ -1,15 +1,22 @@
 from fastapi import FastAPI
-from routers.employees import router as employee_router
-from routers.tasks import router as task_router
+from routers import tasks, employee, notifications
 
+# Create FastAPI application
 app = FastAPI(
-    title="PMS Backend",
-    description="Project Management System API"
+    title="PMS Demo API",
+    description="Performance Management System - Task Assignment Demo",
+    version="1.0.0"
 )
 
-@app.get("/")
-def root():
-    return {"message": "Manager Dashboard"}
+# Register routers (connect endpoints to app)
+app.include_router(tasks.router)        # /api/tasks/...
+app.include_router(employee.router)    # /api/employees/...
+app.include_router(notifications.router) # /api/notifications/...
 
-app.include_router(employee_router)
-app.include_router(task_router)
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "service": "PMS Demo API"
+    }
