@@ -1,21 +1,39 @@
 
-import React from 'react';
-import { X, Briefcase, ExternalLink, Calendar, CheckCircle2, Timer, AlertCircle, XCircle } from 'lucide-react';
-import { Lead, TaskRecord } from '../types';
+import React, { useMemo } from 'react';
+import { X, Briefcase, ExternalLink, Calendar, CheckCircle2, Timer, AlertCircle, XCircle, Layout } from 'lucide-react';
+import { Lead, TaskRecord, Project } from '../types';
 
 interface Props {
   lead: Lead | null;
   onClose: () => void;
   allTasks: TaskRecord[];
+  projects?: Project[];
+  filterByProjectName?: string; // Prop to narrow scope to specific project
 }
 
-const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks }) => {
+const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks, projects = [], filterByProjectName }) => {
   if (!lead) return null;
 
-  const leadTasks = allTasks.filter(t => 
-    t.employeeName.toLowerCase().includes(lead.name.toLowerCase()) ||
-    lead.name.toLowerCase().includes(t.employeeName.toLowerCase())
-  );
+  // Optimized Filter logic: 
+  // 1. If global (dashboard): Shows only active tasks in active projects.
+  // 2. If project-scoped (ecosystem opened): Shows ALL tasks for that specific project.
+  const leadTasks = useMemo(() => {
+    return allTasks.filter(t => {
+      const isLead = t.employeeName.toLowerCase() === lead.name.toLowerCase();
+      
+      // Secondary check: Project scope filter (if ecosystem is opened)
+      if (filterByProjectName) {
+        return isLead && t.projectName.toLowerCase() === filterByProjectName.toLowerCase();
+      }
+
+      // Default Global logic: identity + active status
+      const project = projects.find(p => p.name.toLowerCase() === t.projectName.toLowerCase());
+      const isProjectActive = project ? project.status !== 'Completed' : true;
+      const isTaskActive = t.completionStatus !== 'Completed';
+
+      return isLead && isProjectActive && isTaskActive;
+    });
+  }, [allTasks, lead, projects, filterByProjectName]);
 
   const getStatusColor = (status: TaskRecord['completionStatus']) => {
     switch (status) {
@@ -52,7 +70,7 @@ const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks }) => {
                 alt={lead.name} 
                 className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl" 
               />
-              <div className={`absolute -bottom-2 -right-2 w-6 h-6 rounded-full border-4 border-white shadow-sm ${lead.availability === 0 ? 'bg-emerald-500' : 'bg-[#8A7AB5]'}`} />
+              <div className={`absolute -bottom-2 -right-2 w-6 h-6 rounded-full border-4 border-white shadow-sm ${leadTasks.length === 0 ? 'bg-emerald-500' : 'bg-[#8A7AB5]'}`} />
             </div>
             
             <div className="space-y-1">
@@ -60,10 +78,18 @@ const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks }) => {
               <div className="flex items-center gap-3">
                 <span className="text-xs font-black text-[#8A7AB5] uppercase tracking-widest">{lead.role}</span>
                 <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${lead.availability === 0 ? 'text-emerald-500' : 'text-[#8A7AB5]'}`}>
-                  {lead.availability === 0 ? 'Available for Missions' : `${lead.availability} Active Assignments`}
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${leadTasks.length === 0 ? 'text-emerald-500' : 'text-[#8A7AB5]'}`}>
+                  {leadTasks.length === 0 
+                    ? 'Available for Missions' 
+                    : `${leadTasks.length} ${filterByProjectName ? 'Ecosystem' : 'Active'} Assignments`}
                 </span>
               </div>
+              {filterByProjectName && (
+                <div className="flex items-center gap-1.5 pt-1">
+                  <Layout size={10} className="text-slate-400" />
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Scoped to: {filterByProjectName}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -78,9 +104,11 @@ const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks }) => {
         {/* Task List Section */}
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           <div className="flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-sm pb-4 z-10 border-b border-slate-50 mb-4">
-            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Lifecycle Stream</h4>
+            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">
+              {filterByProjectName ? 'Mission History' : 'Lifecycle Stream'}
+            </h4>
             <span className="px-2.5 py-1 bg-[#8A7AB5]/10 text-[#8A7AB5] text-[10px] font-bold rounded-lg uppercase">
-              Current Deployment
+              {filterByProjectName ? 'Project Contributions' : 'Current Deployment'}
             </span>
           </div>
 
@@ -90,8 +118,14 @@ const LeadDetailModal: React.FC<Props> = ({ lead, onClose, allTasks }) => {
                 <CheckCircle2 size={32} />
               </div>
               <div className="space-y-1">
-                <p className="text-lg font-bold text-slate-900">Lead is Fully Available</p>
-                <p className="text-sm text-slate-500">Ready to be assigned to new workstreams.</p>
+                <p className="text-lg font-bold text-slate-900">
+                  {filterByProjectName ? `No Tasks in ${filterByProjectName}` : 'Lead is Fully Available'}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {filterByProjectName 
+                    ? 'This specialist is not currently assigned to this project.' 
+                    : 'All previous missions are complete. Ready for new assignments.'}
+                </p>
               </div>
             </div>
           ) : (

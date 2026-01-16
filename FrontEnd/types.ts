@@ -30,7 +30,7 @@ export interface TaskRecord {
 export interface Project {
   id: string;
   name: string;
-  status: 'Active' | 'Delayed' | 'Review' | 'Pending' | 'Completed';
+  status: 'Active' | 'Delayed' | 'Review' | 'Pending' | 'Completed' | 'Under Maintenance';
   health: number;
   members?: number;
 }

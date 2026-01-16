@@ -8,7 +8,7 @@ import {
   BarChart3, 
   Settings
 } from 'lucide-react';
-import { NavItem, TaskRecord, TrendItem, Lead } from './types';
+import { NavItem, TaskRecord, TrendItem, Lead, Project } from './types';
 
 export const COLORS = {
   primary: '#8A7AB5',    // AudvikLabs Lavender
@@ -80,10 +80,144 @@ export const LEADS: Lead[] = [
   }
 ];
 
-// Initial projects cleared as requested.
-export const PROJECTS: any[] = [];
+export const PROJECTS: Project[] = [
+  {
+    id: 'PRJ-ALPHA',
+    name: 'Project Alpha',
+    status: 'Completed',
+    health: 100,
+    members: 3
+  },
+  {
+    id: 'PRJ-LEGACY',
+    name: 'Legacy Migration',
+    status: 'Completed',
+    health: 100,
+    members: 3
+  }
+];
 
-export const INITIAL_TASKS: TaskRecord[] = [];
+export const INITIAL_TASKS: TaskRecord[] = [
+  {
+    id: 'T-001',
+    employeeId: 'S1',
+    employeeName: 'Aniket Baral',
+    role: 'FRONT END',
+    date: '2024-11-10',
+    projectName: 'Project Alpha',
+    taskAssigned: 'UI Architecture Design',
+    taskDescription: 'Drafted the core component structure and theme provider.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '09:00',
+    endTime: '18:00',
+    completionDue: '2024-11-15',
+    completionStatus: 'Completed',
+    remarks: 'Architecture approved by CTO',
+    repoUrl: 'https://github.com/audvik/alpha-core'
+  },
+  {
+    id: 'T-002',
+    employeeId: 'S2',
+    employeeName: 'Magesh',
+    role: 'BACKEND',
+    date: '2024-11-12',
+    projectName: 'Project Alpha',
+    taskAssigned: 'REST API Implementation',
+    taskDescription: 'Implemented Node.js endpoints for the Alpha module.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '10:00',
+    endTime: '19:00',
+    completionDue: '2024-11-20',
+    completionStatus: 'Completed',
+    remarks: 'All tests passed with 95% coverage',
+    repoUrl: 'https://github.com/audvik/alpha-api'
+  },
+  {
+    id: 'T-005',
+    employeeId: 'S3',
+    employeeName: 'Tanishka Singh',
+    role: 'DATABASE',
+    date: '2024-11-14',
+    projectName: 'Project Alpha',
+    taskAssigned: 'Query Optimization',
+    taskDescription: 'Indexed primary tables for faster data retrieval in Alpha dashboard.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '09:00',
+    endTime: '17:00',
+    completionDue: '2024-11-18',
+    completionStatus: 'Completed',
+    remarks: 'Performance improved by 40%',
+    repoUrl: 'https://github.com/audvik/alpha-db'
+  },
+  {
+    id: 'T-003',
+    employeeId: 'S4',
+    employeeName: 'Rishi Raj',
+    role: 'BACKEND',
+    date: '2024-12-05',
+    projectName: 'Legacy Migration',
+    taskAssigned: 'PostgreSQL Schema Mapping',
+    taskDescription: 'Mapped legacy Oracle schemas to new PostgreSQL instances.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '09:00',
+    endTime: '17:30',
+    completionDue: '2024-12-10',
+    completionStatus: 'Completed',
+    remarks: 'Data integrity verified',
+    repoUrl: 'https://github.com/audvik/legacy-db'
+  },
+  {
+    id: 'T-008',
+    employeeId: 'S5',
+    employeeName: 'Viraj Ray',
+    role: 'FRONT END',
+    date: '2024-12-08',
+    projectName: 'Legacy Migration',
+    taskAssigned: 'Legacy UI Porting',
+    taskDescription: 'Migrated old JSP pages to React functional components.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '10:00',
+    endTime: '19:00',
+    completionDue: '2024-12-15',
+    completionStatus: 'Completed',
+    remarks: 'Responsive design implemented',
+    repoUrl: 'https://github.com/audvik/legacy-ui'
+  },
+  {
+    id: 'T-009',
+    employeeId: 'S6',
+    employeeName: 'S Harsha',
+    role: 'FRONT END',
+    date: '2024-12-10',
+    projectName: 'Legacy Migration',
+    taskAssigned: 'State Management Setup',
+    taskDescription: 'Configured Redux Toolkit for complex migration workflows.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '09:30',
+    endTime: '18:30',
+    completionDue: '2024-12-18',
+    completionStatus: 'Completed',
+    remarks: 'Clean architecture maintained',
+    repoUrl: 'https://github.com/audvik/legacy-state'
+  },
+  {
+    id: 'T-004',
+    employeeId: 'S4',
+    employeeName: 'Rishi Raj',
+    role: 'BACKEND',
+    date: '2024-12-12',
+    projectName: 'Legacy Migration',
+    taskAssigned: 'Data Transfer Scripts',
+    taskDescription: 'Developed Python ETL scripts for high-speed migration.',
+    projectAssignedBy: 'Alex Rivera',
+    startTime: '11:00',
+    endTime: '20:00',
+    completionDue: '2024-12-15',
+    completionStatus: 'Completed',
+    remarks: 'Zero downtime achieved during cutover',
+    repoUrl: 'https://github.com/audvik/migration-scripts'
+  }
+];
 
 export const CAPACITY_TRENDS: TrendItem[] = [
   { label: 'FRONT END CAPACITY', value: 85, color: '#8A7AB5' },

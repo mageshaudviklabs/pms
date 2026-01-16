@@ -1,7 +1,7 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Project, TaskRecord, Lead, UserProfile } from '../types';
-import { FolderKanban, Users, Activity, ChevronLeft, LayoutGrid, ListFilter, UserPlus, X, ShieldCheck, Clock, FileText, Calendar, Link, CheckCircle2, Timer, AlertCircle, XCircle } from 'lucide-react';
+import { FolderKanban, Users, Activity, ChevronLeft, LayoutGrid, ListFilter, UserPlus, X, ShieldCheck, Clock, FileText, Calendar, Link, CheckCircle2, Timer, AlertCircle, XCircle, Lock, Settings2 } from 'lucide-react';
 import TaskTable from './TaskTable';
 import LeadCard from './LeadCard';
 
@@ -15,10 +15,12 @@ interface Props {
   onDeleteTask?: (taskId: string) => void;
   onRemoveMember?: (lead: Lead, projectName: string) => void;
   onAddTask?: (projectName: string) => void;
+  onUpdateProjectStatus?: (projectId: string, status: Project['status']) => void;
   isManager?: boolean;
   user: UserProfile | null;
   selectedProjectId: string | null;
   setSelectedProjectId: (id: string | null) => void;
+  isProjectCompleted: (projectName: string) => boolean;
 }
 
 const ProjectsView: React.FC<Props> = ({ 
@@ -31,20 +33,23 @@ const ProjectsView: React.FC<Props> = ({
   onDeleteTask,
   onRemoveMember,
   onAddTask,
+  onUpdateProjectStatus,
   isManager = false,
   user,
   selectedProjectId,
-  setSelectedProjectId
+  setSelectedProjectId,
+  isProjectCompleted
 }) => {
+  const [filterStatus, setFilterStatus] = useState<Project['status'] | 'All'>('All');
+  
   const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const isCompleted = selectedProject ? isProjectCompleted(selectedProject.name) : false;
 
-  // For logic: we need to find everyone in the project even if we only show one person's tasks
   const allProjectTasks = useMemo(() => {
     if (!selectedProject) return [];
     return tasks.filter(t => t.projectName.toLowerCase() === selectedProject.name.toLowerCase());
   }, [selectedProject, tasks]);
 
-  // Displayed tasks: All for manager, only 'self' for employee
   const displayTasks = useMemo(() => {
     if (!selectedProject) return [];
     if (isManager) return allProjectTasks;
@@ -62,24 +67,47 @@ const ProjectsView: React.FC<Props> = ({
       .map(lead => {
         const isMe = user ? lead.name.toLowerCase().includes(user.name.toLowerCase()) : false;
         
-        // For Manager, we need task counts and tags
         if (isManager) {
-          const leadTasks = tasks.filter(t => 
-            t.employeeName.toLowerCase().includes(lead.name.toLowerCase()) ||
-            lead.name.toLowerCase().includes(t.employeeName.toLowerCase())
+          // Scope the task count to only the current project ecosystem
+          const leadProjectTasks = allProjectTasks.filter(t => 
+            t.employeeName.toLowerCase() === lead.name.toLowerCase()
           );
+          
           return {
             ...lead,
-            availability: leadTasks.length,
-            tags: Array.from(new Set(leadTasks.map(t => t.taskAssigned))).slice(0, 3),
+            availability: leadProjectTasks.length,
+            tags: Array.from(new Set(leadProjectTasks.map(t => t.taskAssigned))).slice(0, 3),
             isMe
           };
         }
         
-        // For Employee, we just need basic info
         return { ...lead, isMe };
       });
-  }, [selectedProject, allProjectTasks, tasks, leads, isManager, user]);
+  }, [selectedProject, allProjectTasks, leads, isManager, user]);
+
+  // Priority sorting logic
+  const sortedAndFilteredProjects = useMemo(() => {
+    // 1. Filter by status
+    let filtered = filterStatus === 'All' 
+      ? projects 
+      : projects.filter(p => p.status === filterStatus);
+
+    // 2. Sort by status priority
+    const statusPriority: Record<string, number> = {
+      'Active': 0,
+      'Under Maintenance': 1,
+      'Review': 2,
+      'Delayed': 3,
+      'Pending': 4,
+      'Completed': 5
+    };
+
+    return [...filtered].sort((a, b) => {
+      const prioA = statusPriority[a.status] ?? 99;
+      const prioB = statusPriority[b.status] ?? 99;
+      return prioA - prioB;
+    });
+  }, [projects, filterStatus]);
 
   const getStatusIcon = (status: TaskRecord['completionStatus']) => {
     switch (status) {
@@ -98,6 +126,12 @@ const ProjectsView: React.FC<Props> = ({
       case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'Delayed': return 'bg-rose-50 text-rose-600 border-rose-100';
       default: return 'bg-slate-50 text-slate-500 border-slate-100';
+    }
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (selectedProject && onUpdateProjectStatus) {
+      onUpdateProjectStatus(selectedProject.id, e.target.value as Project['status']);
     }
   };
 
@@ -120,13 +154,47 @@ const ProjectsView: React.FC<Props> = ({
               </div>
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-slate-900">{selectedProject.name}</h1>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
-                    selectedProject.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                  }`}>
-                    {selectedProject.status}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-medium">ID: {selectedProject.id}</span>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Project Status</span>
+                    {isManager ? (
+                      <div className="flex items-center gap-2">
+                        <select 
+                          value={selectedProject.status}
+                          onChange={handleStatusChange}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider border-2 border-transparent focus:border-[#8A7AB5]/20 outline-none transition-all ${
+                            selectedProject.status === 'Completed' ? 'bg-slate-900 text-white' : 'bg-white text-slate-900 border-slate-100 shadow-sm'
+                          }`}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Review">Review</option>
+                          <option value="Delayed">Delayed</option>
+                          <option value="Under Maintenance">Under Maintenance</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                        <Settings2 size={12} className="text-slate-400" />
+                      </div>
+                    ) : (
+                      <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider ${
+                        selectedProject.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 
+                        selectedProject.status === 'Completed' ? 'bg-slate-900 text-white' : 'bg-rose-50 text-rose-600'
+                      }`}>
+                        {selectedProject.status}
+                      </span>
+                    )}
+                  </div>
+                  <div className="h-8 w-px bg-slate-100" />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Protocol</span>
+                    {isCompleted ? (
+                      <span className="flex items-center gap-1 text-[9px] font-black text-[#8A7AB5] uppercase">
+                        <Lock size={10} /> History Locked
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-black text-emerald-500 uppercase">Operational</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -145,7 +213,6 @@ const ProjectsView: React.FC<Props> = ({
         </div>
 
         <div className="space-y-12">
-          {/* My Tasks in This Project - Exclusive to Employee role */}
           {!isManager && displayTasks.length > 0 && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -211,7 +278,6 @@ const ProjectsView: React.FC<Props> = ({
             </div>
           )}
 
-          {/* Assigned Talent / Project Team Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -221,7 +287,7 @@ const ProjectsView: React.FC<Props> = ({
                 </h3>
               </div>
               <div className="flex items-center gap-4">
-                {isManager && onAddTask && (
+                {isManager && onAddTask && !isCompleted && (
                   <button 
                     onClick={() => onAddTask(selectedProject.name)}
                     className="flex items-center gap-2 px-3 py-1.5 bg-sky-400 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-sky-500 transition-colors shadow-sm"
@@ -243,7 +309,7 @@ const ProjectsView: React.FC<Props> = ({
                         lead={lead as Lead} 
                         onClick={() => onLeadClick?.(lead as Lead)}
                       />
-                      {onRemoveMember && (
+                      {onRemoveMember && !isCompleted && (
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -255,9 +321,13 @@ const ProjectsView: React.FC<Props> = ({
                           <X size={12} />
                         </button>
                       )}
+                      {isCompleted && (
+                        <div className="absolute top-2 right-2 p-1 bg-slate-50 shadow-sm rounded-full text-slate-300 z-10" title="Historical Member (Locked)">
+                          <Lock size={10} />
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    // Employee-specific Team Member Card (Read-only, simple)
                     <div key={lead.id} className={`bg-white border ${lead.isMe ? 'border-[#8A7AB5] shadow-lg shadow-[#8A7AB5]/5' : 'border-slate-100'} p-4 rounded-2xl flex items-center gap-4 transition-all`}>
                       <img src={lead.avatar} className="w-12 h-12 rounded-xl object-cover" alt={lead.name} />
                       <div className="flex-1 min-w-0">
@@ -282,7 +352,6 @@ const ProjectsView: React.FC<Props> = ({
             )}
           </div>
 
-          {/* Project Workstream Section */}
           <div className="space-y-4 pt-10 border-t border-slate-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -299,6 +368,7 @@ const ProjectsView: React.FC<Props> = ({
               tasks={displayTasks} 
               onEdit={isManager ? onEditTask : undefined}
               onDelete={isManager ? onDeleteTask : undefined}
+              isReadOnly={(task) => isCompleted || task.completionStatus === 'Completed'}
             />
           </div>
         </div>
@@ -336,13 +406,28 @@ const ProjectsView: React.FC<Props> = ({
           <LayoutGrid size={12} />
           Grid View
         </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">
-          <ListFilter size={12} />
-          Filters
-        </button>
+        
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+            <ListFilter size={12} />
+          </div>
+          <select 
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+            className="pl-9 pr-4 py-1.5 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors outline-none appearance-none cursor-pointer border-none"
+          >
+            <option value="All">All Ecosystems</option>
+            <option value="Active">Active / In Process</option>
+            <option value="Under Maintenance">Under Maintenance</option>
+            <option value="Review">Review</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
       </div>
 
-      {projects.length === 0 ? (
+      {sortedAndFilteredProjects.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 space-y-6">
           <div className="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200">
             <FolderKanban size={40} />
@@ -350,27 +435,37 @@ const ProjectsView: React.FC<Props> = ({
           <div className="text-center space-y-2">
             <h3 className="text-xl font-bold text-slate-900">Empty Portfolio</h3>
             <p className="text-sm text-slate-500 max-w-xs mx-auto">
-              {isManager ? 'Upload an Excel sheet or create an ecosystem manually to get started.' : 'No active projects assigned yet.'}
+              {filterStatus !== 'All' 
+                ? `No ecosystems found with status "${filterStatus}".`
+                : (isManager ? 'Upload an Excel sheet or create an ecosystem manually to get started.' : 'No active projects assigned yet.')}
             </p>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {projects.map(project => (
+          {sortedAndFilteredProjects.map(project => (
             <div 
               key={project.id}
               onClick={() => setSelectedProjectId(project.id)}
-              className={`bg-white border ${isManager ? 'border-slate-100' : 'border-slate-100/80'} p-5 rounded-2xl hover:shadow-xl hover:shadow-[#8A7AB5]/10 hover:border-[#8A7AB5]/30 transition-all cursor-pointer group flex flex-col h-full`}
+              className={`bg-white border ${isManager ? 'border-slate-100' : 'border-slate-100/80'} p-5 rounded-2xl hover:shadow-xl hover:shadow-[#8A7AB5]/10 hover:border-[#8A7AB5]/30 transition-all cursor-pointer group flex flex-col h-full relative`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-slate-50 group-hover:bg-[#8A7AB5]/10 rounded-xl transition-colors">
                   <FolderKanban size={20} className="text-slate-400 group-hover:text-[#8A7AB5]" />
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
-                  project.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                }`}>
-                  {project.status}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                    project.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 
+                    project.status === 'Completed' ? 'bg-slate-900 text-white' : 'bg-rose-50 text-rose-600'
+                  }`}>
+                    {project.status}
+                  </span>
+                  {isProjectCompleted(project.name) && (
+                    <span className="text-[7px] font-black text-[#8A7AB5] uppercase flex items-center gap-0.5">
+                      <Lock size={8} /> Locked
+                    </span>
+                  )}
+                </div>
               </div>
 
               <h4 className="text-base font-bold text-slate-900 mb-1 group-hover:text-[#8A7AB5] transition-colors">{project.name}</h4>

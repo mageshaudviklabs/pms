@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import TopHeader from './components/TopHeader';
 import ProjectsView from './components/ProjectsView';
@@ -40,8 +40,10 @@ const App: React.FC = () => {
     handleAddTask,
     handleUpdateTask,
     handleDeleteTask,
+    handleUpdateProjectStatus,
     executeOffboarding,
-    handleFileUpload
+    handleFileUpload,
+    isProjectCompleted
   } = useWorkstream(user);
 
   // Modal states
@@ -55,6 +57,13 @@ const App: React.FC = () => {
   // Notification states
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const prevTasksLengthRef = useRef(tasks.length);
+
+  // Derive the currently "opened" project name for contextual filtering
+  const activeProjectName = useMemo(() => {
+    if (activeNav !== 'projects' || !selectedProjectId) return undefined;
+    const proj = projects.find(p => p.id === selectedProjectId);
+    return proj?.name;
+  }, [activeNav, selectedProjectId, projects]);
 
   // Monitor for new tasks and notify the employee
   useEffect(() => {
@@ -124,9 +133,11 @@ const App: React.FC = () => {
             onDeleteTask={isManager ? handleDeleteTask : undefined}
             onRemoveMember={isManager ? (l, p) => setOffboardContext({ lead: l, projectName: p }) : undefined}
             onAddTask={isManager ? onAddTaskToProject : undefined}
+            onUpdateProjectStatus={isManager ? handleUpdateProjectStatus : undefined}
             user={user}
             selectedProjectId={selectedProjectId}
             setSelectedProjectId={setSelectedProjectId}
+            isProjectCompleted={isProjectCompleted}
           />
         );
       case 'command':
@@ -145,6 +156,7 @@ const App: React.FC = () => {
             onClearTasks={handleClearTasks}
             onEditTask={onEditTask}
             onDeleteTask={handleDeleteTask}
+            isProjectCompleted={isProjectCompleted}
           />
         ) : (
           <EmployeeDashboard 
@@ -203,7 +215,13 @@ const App: React.FC = () => {
         </>
       )}
 
-      <LeadDetailModal lead={selectedLead} onClose={() => setSelectedLead(null)} allTasks={tasks} />
+      <LeadDetailModal 
+        lead={selectedLead} 
+        onClose={() => setSelectedLead(null)} 
+        allTasks={tasks} 
+        projects={projects} 
+        filterByProjectName={activeProjectName}
+      />
     </div>
   );
 };
