@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { DUMMY_EXCEL_DATA } from '../../services/employeeService';
 import { getActiveProjects } from '../../services/projectService';
 import { saveAssignmentLogs } from '../../services/assignmentService';
+import { UserRole } from '../../types';
 
 const ActionOverlay = ({ type, preSelectedEmployee, onClose, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,7 @@ const ActionOverlay = ({ type, preSelectedEmployee, onClose, onSuccess }) => {
           projectId: formData.projectId,
           assignedTo: selectedEmployee.name,
           assignedToId: selectedEmployee.id,
+          assignedBy: 'Alex Sterling', // Get from current user context
           assignedAt: new Date().toISOString(),
           status: 'Assigned',
           priority: formData.priority,

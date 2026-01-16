@@ -1,11 +1,10 @@
 import { DUMMY_EXCEL_DATA } from './employeeService';
 
-export const assignTasksFromExcel = (tasks) => {
+export const assignTasksFromExcel = (tasks, assignedBy = 'System') => {
   const assignments = [];
   const employees = [...DUMMY_EXCEL_DATA].sort((a, b) => a.projects - b.projects);
 
   tasks.forEach((task) => {
-    // find employee with least projects
     const assignedEmployee = employees.find(emp => emp.workload < 100);
     
     if (assignedEmployee) {
@@ -16,16 +15,16 @@ export const assignTasksFromExcel = (tasks) => {
         projectName: task.projectName,
         assignedTo: assignedEmployee.name,
         assignedToId: assignedEmployee.id,
+        assignedBy: assignedBy,
         assignedAt: new Date().toISOString(),
         status: 'Assigned',
-        dueDate: task.dueDate || null
+        priority: task.priority || 'Medium',
+        dueDate: task.dueDate || null,
+        source: 'EXCEL_IMPORT'
       });
 
-      // update workload
       assignedEmployee.projects += 1;
       assignedEmployee.workload += 15;
-      
-      // re-sort after assignment
       employees.sort((a, b) => a.projects - b.projects);
     }
   });
