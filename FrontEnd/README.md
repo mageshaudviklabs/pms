@@ -1,92 +1,108 @@
-# PMS Frontend
+# Performance Management System (PMS)
 
-This directory contains the **Frontend application** for the PMS (Project Management System).
+A comprehensive Performance Management System built with React for the frontend and FastAPI for the backend.
 
-The frontend is built using **React + TypeScript + Vite** and provides the user interface for dashboards, project tracking, task management, and backend interaction.
+## Features
 
----
+- Employee management
+- Performance appraisals
+- Goal tracking
+- Feedback system
+- User authentication
+- Dashboard views for managers and employees
 
-## 🚀 Tech Stack
+## Getting Started
 
-- React (TypeScript)
-- Vite
-- Tailwind CSS
-- Axios / Fetch API
+### Prerequisites
 
----
+- Node.js (v16 or higher)
+- npm or yarn
+- Python (v3.8 or higher)
+- pip
 
-## 📁 Project Structure
+### Installation
 
-FrontEnd/
-│── components/
-│   ├── CapacityTrends.tsx
-│   ├── LeadCard.tsx
-│   ├── LeadDetailModal.tsx
-│   ├── ProjectsList.tsx
-│   ├── Sidebar.tsx
-│   ├── SpecialistCard.tsx
-│   ├── TaskFormModal.tsx
-│   ├── TaskTable.tsx
-│   └── TopHeader.tsx
-│
-│── App.tsx
-│── index.tsx
-│── index.html
-│── constants.tsx
-│── types.ts
-│── metadata.json
-│── vite.config.ts
-│── tsconfig.json
-│── package.json
-│── package-lock.json
-│── README.md   ✅
-│── .gitignore  ✅
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd pms
+   ```
 
+2. Install frontend dependencies:
+   ```bash
+   npm install
+   ```
 
----
+3. Install backend dependencies:
+   ```bash
+   cd Backend
+   pip install -r requirements.txt
+   ```
 
-## 🛠️ Getting Started
+### Running the Application
 
-### 1️⃣ Install dependencies
-npm install
+1. Start the backend server:
+   ```bash
+   cd Backend
+   python -m uvicorn app.main:app --reload
+   ```
 
-### 2️⃣ Start development server
-npm run dev
+2. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
 
-The application will be available at:
-http://localhost:5173
+3. Open your browser and navigate to `http://localhost:5173`
 
----
+## Project Structure
 
-## 🔗 Backend API Integration
+```
+pms/
+├── Frontend/
+│   ├── public/
+│   └── src/
+│       ├── api/
+│       ├── assets/
+│       ├── components/
+│       ├── hooks/
+│       ├── pages/
+│       ├── services/
+│       ├── styles/
+│       ├── utils/
+│       ├── types.js
+│       ├── App.jsx
+│       └── main.jsx
+├── Backend/
+│   └── app/
+│       ├── core/
+│       ├── models/
+│       ├── repositories/
+│       ├── routers/
+│       ├── schemas/
+│       ├── services/
+│       └── utils/
+├── .eslintrc.json
+├── .prettierrc
+├── .gitignore
+├── package.json
+└── README.md
+```
 
-- The frontend communicates with the PMS backend via REST APIs.
-- API base URLs should be configured using environment variables.
+## Technologies Used
 
-Example:
-VITE_API_BASE_URL=http://localhost:8000
+- **Frontend:** React, Vite, Tailwind CSS, Axios
+- **Backend:** FastAPI, SQLAlchemy, PostgreSQL
+- **Testing:** Vitest, React Testing Library
+- **Linting:** ESLint, Prettier
 
-⚠️ Do NOT commit .env or .env.local files.
+## Contributing
 
----
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📦 Build for Production
+## License
 
-npm run build
-
-The production-ready files will be generated inside the dist/ directory.
-
----
-
-## 👥 Team Guidelines
-
-- Do not commit node_modules
-- Always pull the latest changes before pushing
-- Keep components modular and reusable
-- Follow consistent naming conventions
-
----
-
-## 📌 Notes
-
-This frontend is designed to integrate seamlessly with the PMS backend services and may evolve as backend APIs expand.
+This project is licensed under the MIT License.
