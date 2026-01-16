@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontend App</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#8E7CC3',
+              primaryDark: '#5E5280', 
+              slateBrand: '#2D3748',
+              bgAudvik: '#F8F9FD',
+              borderAudvik: '#E2E8F0',
+              borderDiv: '#E5E7EB',
+              textPrimary: '#111827',
+              textSecondary: '#6B7280',
+              sidebarBg: '#FFFFFF',
+              success: '#10B981',
+              error: '#EF4444',
+              warning: '#F59E0B'
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Custom CSS via Tailwind Layer -->
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          font-family: 'Inter', sans-serif;
+          @apply text-textPrimary bg-bgAudvik;
+        }
+      }
+
+      @layer components {
+        .btn-audvik {
+          @apply bg-primary text-white hover:bg-primaryDark transition-all;
+        }
+
+        .card-audvik {
+          @apply bg-white rounded-2xl border border-borderDiv shadow-sm;
+        }
+
+        .neo-card {
+          @apply bg-white border-2 border-borderDiv shadow-lg hover:shadow-2xl transition-all duration-300;
+        }
+
+        .gradient-text {
+          @apply bg-gradient-to-r from-primary to-primaryDark bg-clip-text text-transparent;
+        }
+
+        .sidebar-active {
+          @apply bg-bgAudvik border-l-4 border-primary;
+        }
+
+        /* Scrollbar styles */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #8E7CC3;
+          border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #6d5b99;
+        }
+      }
+
+      @layer utilities {
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.5s ease-out;
+        }
+
+        .animate-bounceIn {
+          animation: bounceIn 0.6s ease-out;
+        }
+
+        .pulse-glow {
+          animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+          0% { opacity: 0; transform: scale(0.3); }
+          50% { opacity: 1; transform: scale(1.05); }
+          70% { transform: scale(0.9); }
+          100% { transform: scale(1); }
+        }
+
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "vite": "https://esm.sh/vite@^7.3.1",
+        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+        "axios": "https://esm.sh/axios@^1.13.2",
+        "recharts": "https://esm.sh/recharts@^3.6.0",
+        "xlsx": "https://esm.sh/xlsx@^0.18.5",
+        "@testing-library/react": "https://esm.sh/@testing-library/react@^16.3.1"
+      }
+    }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

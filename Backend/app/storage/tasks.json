@@ -1,0 +1,215 @@
+{
+  "lastTaskId": 64,
+  "tasks": [
+    {
+      "title": "Dashboard Integration",
+      "description": "Integrating dashboard charts\nand role-based views\nin frontend",
+      "priority": "Medium",
+      "deadline": "2026-02-18",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP001",
+          "employeeName": "Aniket Baral"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 55
+    },
+    {
+      "title": "Auth Module",
+      "description": "Implementing JWT authentication\nand role-based access\ncontrol",
+      "priority": "Medium",
+      "deadline": "2026-02-18",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP002",
+          "employeeName": "Magesh"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 56
+    },
+    {
+      "title": "Report APIs",
+      "description": "Developing APIs for\nreport generation\nand exports",
+      "priority": "Medium",
+      "deadline": "2026-02-19",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP003",
+          "employeeName": "Rishi Raj"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 57
+    },
+    {
+      "title": "Performance Optimization",
+      "description": "Optimizing frontend\nperformance and\nreducing load times",
+      "priority": "Medium",
+      "deadline": "2026-02-19",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP004",
+          "employeeName": "S Harsha"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 58
+    },
+    {
+      "title": "Data Migration",
+      "description": "Migrating existing data\nto optimized schema\nwith validation",
+      "priority": "Medium",
+      "deadline": "2026-02-20",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP005",
+          "employeeName": "Tanishka Singh"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 59
+    },
+    {
+      "title": "Bug Fixing",
+      "description": "Fixing reported UI bugs\nand cross-browser\nissues",
+      "priority": "Medium",
+      "deadline": "2026-02-19",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP006",
+          "employeeName": "Viraj Ray"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:26",
+      "assignedAt": "2026-01-17 03:43:26",
+      "taskId": 60
+    },
+    {
+      "title": "Web Dashboard UI",
+      "description": "Designing and developing\nresponsive admin dashboard\nfor AI Attendance System",
+      "priority": "Medium",
+      "deadline": "2026-04-02",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP001",
+          "employeeName": "Aniket Baral"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:35",
+      "assignedAt": "2026-01-17 03:43:35",
+      "taskId": 61
+    },
+    {
+      "title": "API Development",
+      "description": "Developing secure APIs\nfor attendance records\nand user management",
+      "priority": "Medium",
+      "deadline": "2026-04-03",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP002",
+          "employeeName": "Magesh"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:35",
+      "assignedAt": "2026-01-17 03:43:35",
+      "taskId": 62
+    },
+    {
+      "title": "Schema Design",
+      "description": "Designing optimized database\nschema for attendance logs\nand reports",
+      "priority": "Medium",
+      "deadline": "2026-04-04",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP005",
+          "employeeName": "Tanishka Singh"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:35",
+      "assignedAt": "2026-01-17 03:43:35",
+      "taskId": 63
+    },
+    {
+      "title": "UI Testing",
+      "description": "Testing UI flows,\nvalidating forms,\nand fixing visual bugs",
+      "priority": "Medium",
+      "deadline": "2026-04-03",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP006",
+          "employeeName": "Viraj Ray"
+        }
+      ],
+      "createdAt": "2026-01-17 03:43:35",
+      "assignedAt": "2026-01-17 03:43:35",
+      "taskId": 64
+    }
+  ]
+}
