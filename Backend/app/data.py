@@ -308,6 +308,7 @@ def assign_task_to_employees(
     - Updates task status to "Assigned"
     - Updates employee data
     - Creates notifications for employees
+    - Logs assignment in employee history  # ← NEW
     """
     task = get_task_by_id(task_id)
     if not task:
@@ -323,6 +324,7 @@ def assign_task_to_employees(
     
     manager = get_manager_by_id(manager_id)
     assigned_employees = []
+    assigned_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     for emp_id in employee_ids:
         employee = get_employee_by_id(emp_id)
@@ -338,6 +340,16 @@ def assign_task_to_employees(
                 message=f"{manager['managerName']} selected you to do '{task['title']}' task."
             )
             
+            add_task_to_employee_history(
+                employee_id=emp_id,
+                task_id=task_id,
+                task_title=task["title"],
+                manager_id=manager_id,
+                manager_name=manager["managerName"],
+                assigned_at=assigned_at,
+                status=TaskStatus.ASSIGNED.value
+            )
+            
             assigned_employees.append({
                 "employeeId": emp_id,
                 "employeeName": employee["employeeName"]
@@ -346,14 +358,13 @@ def assign_task_to_employees(
     # Update task
     task["status"] = TaskStatus.ASSIGNED.value
     task["assignedEmployees"] = assigned_employees
-    task["assignedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    task["assignedAt"] = assigned_at
     
     return {
         "task": task,
         "assignedTo": assigned_employees,
         "notificationsSent": len(assigned_employees)
     }
-
 
 # ===== NOTIFICATION FUNCTIONS =====
 
@@ -424,3 +435,88 @@ def delete_notification(notification_id: int) -> bool:
     
     return False
 		
+
+
+# ===== EMPLOYEE TASK HISTORY =====
+# Track all tasks assigned to each employee
+employee_task_history: Dict[str, List[Dict]] = {
+    emp["employeeId"]: [] for emp in employees_db
+}
+
+
+# ===== HELPER FUNCTION FOR TASK HISTORY =====
+
+def add_task_to_employee_history(
+    employee_id: str,
+    task_id: int,
+    task_title: str,
+    manager_id: str,
+    manager_name: str,
+    assigned_at: str,
+    status: str = "Assigned"
+) -> None:
+    """Add a task assignment to employee's history"""
+    if employee_id not in employee_task_history:
+        employee_task_history[employee_id] = []
+    
+    history_entry = {
+        "taskId": task_id,
+        "taskTitle": task_title,
+        "managerId": manager_id,
+        "managerName": manager_name,
+        "assignedAt": assigned_at,
+        "status": status,  # Assigned, In Progress, Completed
+        "completedAt": None
+    }
+    
+    employee_task_history[employee_id].append(history_entry)
+
+
+def get_employee_task_history(employee_id: str) -> Dict:
+    """
+    Get complete task history for an employee
+    Returns active and completed tasks
+    """
+    if employee_id not in employee_task_history:
+        return {
+            "employeeId": employee_id,
+            "totalTasks": 0,
+            "activeTasks": [],
+            "completedTasks": [],
+            "history": []
+        }
+    
+    history = employee_task_history[employee_id]
+    
+    active = [h for h in history if h["status"] in ["Assigned", "In Progress"]]
+    completed = [h for h in history if h["status"] == "Completed"]
+    
+    return {
+        "employeeId": employee_id,
+        "totalTasks": len(history),
+        "activeTasks": active,
+        "activeCount": len(active),
+        "completedTasks": completed,
+        "completedCount": len(completed),
+        "fullHistory": sorted(history, key=lambda x: x["assignedAt"], reverse=True)
+    }
+
+
+def update_task_status_in_history(
+    employee_id: str, 
+    task_id: int, 
+    new_status: str,
+    completed_at: str = None
+) -> bool:
+    """Update task status in employee's history"""
+    if employee_id not in employee_task_history:
+        return False
+    
+    for entry in employee_task_history[employee_id]:
+        if entry["taskId"] == task_id:
+            entry["status"] = new_status
+            if completed_at:
+                entry["completedAt"] = completed_at
+            return True
+    
+    return False

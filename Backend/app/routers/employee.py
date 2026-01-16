@@ -8,12 +8,25 @@ router = APIRouter(prefix="/api/employees", tags=["Employees"])
 async def get_all_employees():
     """Returns all employees with their current data"""
     employees = data.get_all_employees()
+    
+    # Add task history summary to each employee
+    employees_with_history = []
+    for emp in employees:
+        history = data.get_employee_task_history(emp["employeeId"])
+        employees_with_history.append({
+            **emp,
+            "taskHistorySummary": {
+                "totalTasks": history["totalTasks"],
+                "activeTasks": history["activeCount"],
+                "completedTasks": history["completedCount"]
+            }
+        })
+    
     return {
         "success": True,
-        "count": len(employees),
-        "data": employees
+        "count": len(employees_with_history),
+        "data": employees_with_history
     }
-
 
 @router.get("/ranking", summary="Get employees ranked by availability")
 async def get_employee_ranking():
@@ -94,4 +107,54 @@ async def get_employee_notifications(employee_id: str, unread_only: bool = False
         "unreadOnly": unread_only,
         "count": len(notifications),
         "notifications": notifications
+    }
+
+@router.get("/{employee_id}/task-history", summary="Get employee task history/logs")
+async def get_employee_task_history(employee_id: str):
+    """
+    **Employee Task History & Logs**
+    
+    Returns complete task assignment history for an employee:
+    - **Active Tasks**: Currently assigned tasks (Assigned/In Progress)
+    - **Completed Tasks**: Past tasks that were completed
+    - **Full History**: Chronological log of all task assignments
+    
+    **Use Case:**
+    - Manager clicks on employee's "active projects" count
+    - Shows detailed log of what employee has worked on
+    
+    **Response includes:**
+    - Task title, manager who assigned it
+    - Assignment date, completion date (if completed)
+    - Current status of each task
+    """
+    # Validate employee exists
+    employee = data.get_employee_by_id(employee_id)
+    
+    if not employee:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "success": False,
+                "message": f"Employee '{employee_id}' not found"
+            }
+        )
+    
+    # Get task history
+    history = data.get_employee_task_history(employee_id)
+    
+    return {
+        "success": True,
+        "employee": {
+            "employeeId": employee_id,
+            "employeeName": employee["employeeName"],
+            "currentTaskDetails": employee["currentTaskDetails"],
+            "noOfActiveProjects": employee["noOfActiveProjects"]
+        },
+        "taskHistory": history,
+        "summary": {
+            "totalTasksAssigned": history["totalTasks"],
+            "currentlyActive": history["activeCount"],
+            "completed": history["completedCount"]
+        }
     }

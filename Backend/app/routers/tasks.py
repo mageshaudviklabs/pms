@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from datetime import datetime
+
 import data
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
@@ -237,4 +239,58 @@ async def get_all_tasks():
         "success": True,
         "count": len(data.task_queue),
         "tasks": list(reversed(data.task_queue))
+    }
+
+@router.patch("/{task_id}/status", summary="Update task status")
+async def update_task_status(task_id: int, new_status: str):
+    """
+    Update task status (e.g., mark as completed)
+    
+    Statuses: Pending, Assigned, In Progress, Completed
+    """
+    task = data.get_task_by_id(task_id)
+    
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "success": False,
+                "message": f"Task with ID {task_id} not found"
+            }
+        )
+    
+    # Validate status
+    valid_statuses = [status.value for status in data.TaskStatus]
+    if new_status not in valid_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "success": False,
+                "message": f"Invalid status. Must be one of: {valid_statuses}"
+            }
+        )
+    
+    # Update task status
+    task["status"] = new_status
+    
+    # If marking as completed, update employee history
+    if new_status == "Completed":
+        completed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for assigned_emp in task["assignedEmployees"]:
+            data.update_task_status_in_history(
+                employee_id=assigned_emp["employeeId"],
+                task_id=task_id,
+                new_status="Completed",
+                completed_at=completed_at
+            )
+            
+            # Decrement active project count
+            employee = data.get_employee_by_id(assigned_emp["employeeId"])
+            if employee and employee["noOfActiveProjects"] > 0:
+                employee["noOfActiveProjects"] -= 1
+    
+    return {
+        "success": True,
+        "message": f"Task status updated to '{new_status}'",
+        "task": task
     }
