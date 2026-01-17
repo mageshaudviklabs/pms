@@ -1,0 +1,215 @@
+{
+  "lastTaskId": 80,
+  "tasks": [
+    {
+      "title": "UI Development",
+      "description": "Developing React components\nand Tailwind UI\nfor PMS frontend",
+      "priority": "Medium",
+      "deadline": "2026-02-05",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP001",
+          "employeeName": "Aniket Baral"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 71
+    },
+    {
+      "title": "API Development",
+      "description": "Building FastAPI endpoints\nand business logic\nfor PMS",
+      "priority": "Medium",
+      "deadline": "2026-02-06",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP002",
+          "employeeName": "Magesh"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 72
+    },
+    {
+      "title": "Service Integration",
+      "description": "Integrating backend services\nand handling\nAPI responses",
+      "priority": "Medium",
+      "deadline": "2026-02-06",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP003",
+          "employeeName": "Rishi Raj"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 73
+    },
+    {
+      "title": "UI Enhancements",
+      "description": "Improving UI responsiveness\nand UX fixes\nacross pages",
+      "priority": "Medium",
+      "deadline": "2026-02-07",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP004",
+          "employeeName": "S Harsha"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 74
+    },
+    {
+      "title": "Database Design",
+      "description": "Designing database schema\nand optimizing\nqueries",
+      "priority": "Medium",
+      "deadline": "2026-02-08",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP005",
+          "employeeName": "Tanishka Singh"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 75
+    },
+    {
+      "title": "UI Testing",
+      "description": "Testing frontend flows\nand fixing\nUI bugs",
+      "priority": "Medium",
+      "deadline": "2026-02-07",
+      "metadata": {
+        "projectName": "PMS System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR001",
+      "managerName": "Rajesh Krishnan",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP006",
+          "employeeName": "Viraj Ray"
+        }
+      ],
+      "createdAt": "2026-01-17 11:01:13",
+      "assignedAt": "2026-01-17 11:01:13",
+      "taskId": 76
+    },
+    {
+      "title": "Web Dashboard UI",
+      "description": "Designing and developing\nresponsive admin dashboard\nfor AI Attendance System",
+      "priority": "Medium",
+      "deadline": "2026-04-02",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR002",
+      "managerName": "Sunita Reddy",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP001",
+          "employeeName": "Aniket Baral"
+        }
+      ],
+      "createdAt": "2026-01-17 11:02:20",
+      "assignedAt": "2026-01-17 11:02:20",
+      "taskId": 77
+    },
+    {
+      "title": "API Development",
+      "description": "Developing secure APIs\nfor attendance records\nand user management",
+      "priority": "Medium",
+      "deadline": "2026-04-03",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR002",
+      "managerName": "Sunita Reddy",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP002",
+          "employeeName": "Magesh"
+        }
+      ],
+      "createdAt": "2026-01-17 11:02:20",
+      "assignedAt": "2026-01-17 11:02:20",
+      "taskId": 78
+    },
+    {
+      "title": "Schema Design",
+      "description": "Designing optimized database\nschema for attendance logs\nand reports",
+      "priority": "Medium",
+      "deadline": "2026-04-04",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR002",
+      "managerName": "Sunita Reddy",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP005",
+          "employeeName": "Tanishka Singh"
+        }
+      ],
+      "createdAt": "2026-01-17 11:02:20",
+      "assignedAt": "2026-01-17 11:02:21",
+      "taskId": 79
+    },
+    {
+      "title": "UI Testing",
+      "description": "Testing UI flows,\nvalidating forms,\nand fixing visual bugs",
+      "priority": "Medium",
+      "deadline": "2026-04-03",
+      "metadata": {
+        "projectName": "AI Attendance System"
+      },
+      "status": "Assigned",
+      "managerId": "MGR002",
+      "managerName": "Sunita Reddy",
+      "assignedEmployees": [
+        {
+          "employeeId": "EMP006",
+          "employeeName": "Viraj Ray"
+        }
+      ],
+      "createdAt": "2026-01-17 11:02:21",
+      "assignedAt": "2026-01-17 11:02:21",
+      "taskId": 80
+    }
+  ]
+}

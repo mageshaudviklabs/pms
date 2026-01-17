@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
-import data
+from app import data
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
@@ -234,12 +234,14 @@ async def assign_task(task_id: int, request: AssignTaskRequest):
 
 @router.get("/", summary="Get all tasks")
 async def get_all_tasks():
-    """Get all tasks in the system (for testing/admin)"""
+    tasks = data.get_all_tasks()   # comes from task_storage via services
+
     return {
         "success": True,
-        "count": len(data.task_queue),
-        "tasks": list(reversed(data.task_queue))
+        "count": len(tasks),
+        "tasks": list(reversed(tasks))
     }
+
 
 @router.patch("/{task_id}/status", summary="Update task status")
 async def update_task_status(task_id: int, new_status: str):
@@ -294,3 +296,5 @@ async def update_task_status(task_id: int, new_status: str):
         "message": f"Task status updated to '{new_status}'",
         "task": task
     }
+
+

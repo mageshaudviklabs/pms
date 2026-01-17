@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional
-import data
+from app import data
 
 router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
 

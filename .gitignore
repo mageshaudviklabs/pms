@@ -1,12 +1,14 @@
 # Frontend
-FrontEnd/node_modules
-FrontEnd/dist
-FrontEnd/.env*
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+
+# Backend
+Backend/venv/
+Backend/__pycache__/
+Backend/.env
+Backend/*.db
 
 # General
-node_modules/
 .env
-.env.local
-
-
-__pycache__/
+.DS_Store
