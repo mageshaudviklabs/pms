@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'https://74d1bc2fb6ad.ngrok-free.app';
+export const API_BASE_URL = 'http://127.0.0.1:8000';
 export const APP_NAME = 'Frontend App';
 
 export const ACTION_TYPES = {
