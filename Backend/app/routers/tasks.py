@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from app.enums import TaskStatus 
+from app.services.task_storage import update_task
 
 from app import data
 
@@ -46,6 +48,10 @@ class AssignTaskRequest(BaseModel):
             }
         }
 
+
+class EmployeeTaskStatusRequest(BaseModel):
+    employeeId: str
+    newStatus: TaskStatus
 
 # ===== ENDPOINTS =====
 
@@ -297,4 +303,75 @@ async def update_task_status(task_id: int, new_status: str):
         "task": task
     }
 
+
+@router.patch(
+    "/{task_id}/employee-status",
+    summary="Employee updates task status"
+)
+async def update_task_status_by_employee(
+    task_id: int,
+    request: EmployeeTaskStatusRequest
+):
+    """
+    Employee can update task status.
+    ✔ Rollback allowed
+    ✔ Changes reflect to manager & projects
+    ✔ No assignment changes
+    """
+
+    # 1️⃣ Fetch task
+    task = data.get_task_by_id(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    # 2️⃣ Validate employee is assigned to this task
+    assigned_employee_ids = [
+        emp["employeeId"]
+        for emp in task.get("assignedEmployees", [])
+    ]
+
+    if request.employeeId not in assigned_employee_ids:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not assigned to this task"
+        )
+
+    # 3️⃣ Validate status
+    valid_statuses = [status.value for status in data.TaskStatus]
+
+    if request.newStatus not in valid_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status. Allowed: {valid_statuses}"
+        )
+
+    # 4️⃣ Update task status (ROLLBACK ALLOWED)
+    old_status = task["status"]
+    task["status"] = request.newStatus
+
+    # 5️⃣ Persist task
+    update_task(task)
+
+    # 6️⃣ Update employee history (if exists)
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    data.update_task_status_in_history(
+        employee_id=request.employeeId,
+        task_id=task_id,
+        new_status=request.newStatus,
+        completed_at=now if request.newStatus == "Completed" else None
+    )
+
+    return {
+        "success": True,
+        "message": f"Task status updated from '{old_status}' to '{request.newStatus}'",
+        "task": {
+            "taskId": task["taskId"],
+            "status": task["status"],
+            "updatedAt": now
+        }
+    }
 

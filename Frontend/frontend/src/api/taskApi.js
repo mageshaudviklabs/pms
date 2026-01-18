@@ -1,4 +1,4 @@
-import apiClient from "../api";
+import apiClient from "./index.js";
 
 export const taskService = {
   // POST /api/tasks/create
@@ -15,6 +15,14 @@ export const taskService = {
 
   // GET /api/tasks/employee/{employeeId} (Fetch tasks for a specific employee)
   getEmployeeTasks: (employeeId) => apiClient.get(`/api/tasks/employee/${employeeId}`),
+
+  // PATCH /api/tasks/{taskId}/employee-status (Update task status by employee)
+  // Changed field name to 'newStatus' to match FastAPI schema expectations and fix 422 errors
+  updateTaskStatus: (taskId, employeeId, newStatus) => 
+    apiClient.patch(`/api/tasks/${taskId}/employee-status`, {
+      employeeId,
+      newStatus
+    }),
 
   // POST /api/tasks/import/preview (Upload Excel)
   importPreview: (file) => {

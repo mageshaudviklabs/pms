@@ -1,118 +1,227 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import useEmployees from '../hooks/useEmployees';
 import { getAssignmentLogs } from '../services/assignmentService';
 import { taskService } from '../api/taskApi';
+import { employeeService } from '../api/employeeApi';
 import Card from '../components/Card';
 import EmployeeDetailsModal from '../components/EmployeeDetailsModal/EmployeeDetailsModal';
 
-const ManagerDashboard = ({ onOpenImport, onAction }) => {
-  const { employees, loading: employeesLoading } = useEmployees();
-  const [teamData, setTeamData] = useState([]);
-  const [metricsLoading, setMetricsLoading] = useState(true);
-  const [assignmentLogs, setAssignmentLogs] = useState([]);
-  const [showAllEmployees, setShowAllEmployees] = useState(false);
-  const [selectedEmployeeForDetails, setSelectedEmployeeForDetails] = useState(null);
-  
-  // Combine loading states
-  const loading = employeesLoading || metricsLoading;
+// --- Redesigned Employee Resource Card Component ---
+const EmployeeResourceCard = ({ employee, onAction, onViewDetails }) => {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 1. Calculate Team Metrics (Join Employees + Tasks)
   useEffect(() => {
-    const fetchTeamMetrics = async () => {
-      // Wait for profiles to be loaded from hook
-      if (employeesLoading) return;
-
+    const fetchTasks = async () => {
       try {
-        setMetricsLoading(true);
-        // Fetch all tasks to calculate workload
-        const response = await taskService.getAllTasks();
-        const allTasks = response.data?.tasks || [];
-
-        const mergedData = employees.map(emp => {
-          // Count tasks assigned to this employee
-          const empTasks = allTasks.filter(task => 
-            task.assignedEmployees?.some(ae => ae.employeeId === emp.id)
-          );
-
-          const taskCount = empTasks.length;
-          
-          // Logic: Workload = Tasks * 20 (Capped at 100)
-          const calculatedWorkload = Math.min(taskCount * 20, 100);
-
-          return {
-            ...emp,
-            role: emp.designation || 'Team Member', // Map API designation to UI role
-            projects: taskCount, // Map task count to Projects count
-            workload: calculatedWorkload,
-            performance: '92%' // Static for now as no API provided for performance
-          };
-        });
-
-        // Sort by workload (Busy/High workload first)
-        mergedData.sort((a, b) => b.workload - a.workload);
-
-        setTeamData(mergedData);
+        setLoading(true);
+        const response = await taskService.getEmployeeTasks(employee.id);
+        if (response.data && response.data.success) {
+          setTasks(response.data.tasks || []);
+        }
       } catch (error) {
-        console.error("Failed to calculate team metrics", error);
-        // Fallback to basic employee data if task fetch fails
-        setTeamData(employees.map(e => ({ ...e, projects: 0, workload: 0, role: e.designation })));
+        console.error(`Failed to fetch tasks for ${employee.name}`, error);
       } finally {
-        setMetricsLoading(false);
+        setLoading(false);
       }
     };
+    fetchTasks();
+  }, [employee.id]);
 
-    fetchTeamMetrics();
-  }, [employees, employeesLoading]);
+  const activeTasks = tasks.filter(t => t.status === 'Assigned' || t.status === 'In Progress');
+  const activeCount = activeTasks.length;
 
-  // Use the calculated teamData for the view
-  const allEmployees = teamData;
+  // Status Logic: 0-1 Available, 2-3 Moderate, 4+ Busy
+  const getStatus = () => {
+    if (activeCount >= 4) return { label: 'BUSY', color: 'bg-error/10 text-error border-error/20' };
+    if (activeCount >= 2) return { label: 'MODERATE', color: 'bg-warning/10 text-warning border-warning/20' };
+    return { label: 'AVAILABLE', color: 'bg-success/10 text-success border-success/20' };
+  };
 
-  // 2. Load Assignment Queue
+  const status = getStatus();
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-borderDiv rounded-[2rem] p-6 h-48 flex items-center justify-center animate-pulse">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      onClick={onViewDetails}
+      className="bg-white border border-borderDiv rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative h-full cursor-pointer overflow-hidden"
+    >
+      {/* Top Section: Avatar, Name, Role, Counter */}
+      <div className="flex items-start justify-between mb-6">
+        <div className="flex items-center gap-4">
+          {/* Avatar with dynamic border based on workload */}
+          <div className={`w-14 h-14 rounded-2xl border-2 p-0.5 transition-colors ${
+            activeCount >= 4 ? 'border-error/40' : activeCount >= 2 ? 'border-warning/40' : 'border-success/40'
+          }`}>
+            <div className="w-full h-full bg-bgAudvik rounded-[10px] flex items-center justify-center font-bold text-primary text-xl overflow-hidden shadow-inner">
+               {(employee.name || '?').split(' ').map(n => n[0]).join('')}
+            </div>
+          </div>
+          
+          <div className="min-w-0">
+            <h4 className="text-base font-bold text-textPrimary leading-tight truncate" title={employee.name}>
+              {employee.name}
+            </h4>
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mt-0.5 truncate opacity-80">
+              {employee.designation}
+            </p>
+            <p className="text-[10px] text-textSecondary font-medium truncate opacity-60">
+              {employee.department}
+            </p>
+          </div>
+        </div>
+
+        {/* Task Counter Gauge Visual - Explicitly showing Active Count */}
+        <div className="relative w-11 h-11 flex-shrink-0">
+          <svg className="w-full h-full transform -rotate-90">
+            <circle
+              cx="22"
+              cy="22"
+              r="18"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="transparent"
+              className="text-bgAudvik"
+            />
+            <circle
+              cx="22"
+              cy="22"
+              r="18"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="transparent"
+              strokeDasharray={113}
+              strokeDashoffset={113 - (Math.min(activeCount, 4) / 4) * 113}
+              className={`transition-all duration-700 ${
+                activeCount >= 4 ? 'text-error' : activeCount >= 2 ? 'text-warning' : 'text-primary'
+              }`}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center flex-col pt-0.5">
+            <span className="text-sm font-black text-slateBrand leading-none">{activeCount}</span>
+            <span className="text-[6px] font-bold text-textSecondary uppercase tracking-tighter opacity-70">Active</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tags Section: Availability and Active Tasks chips */}
+      <div className="flex flex-wrap gap-2 items-center mb-6">
+        <span className={`text-[9px] px-2.5 py-1 rounded-lg border font-black tracking-widest ${status.color}`}>
+          {status.label}
+        </span>
+        
+        {activeTasks.length > 0 ? (
+          <>
+            {activeTasks.slice(0, 2).map((t, i) => (
+              <span key={i} className="text-[9px] px-2.5 py-1 rounded-lg font-bold bg-bgAudvik text-textSecondary border border-borderAudvik truncate max-w-[100px] shadow-sm" title={t.title}>
+                {t.title.toUpperCase()}
+              </span>
+            ))}
+            {activeTasks.length > 2 && (
+              <span className="text-[9px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">
+                +{activeTasks.length - 2}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="text-[9px] font-bold text-textSecondary italic opacity-40 tracking-wider">NO ACTIVE OBJECTIVES</span>
+        )}
+      </div>
+
+      {/* Footer Stats & Actions */}
+      <div className="mt-auto pt-4 border-t border-borderDiv/50 flex items-center justify-end">
+        <div className="flex items-center gap-2 w-full">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onAction('ASSIGN_TASK', employee);
+            }}
+            className="w-full py-2.5 bg-white border border-borderAudvik text-primary text-[10px] font-bold rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+          >
+            <i className="fa-solid fa-plus-circle"></i>
+            Assign New Task
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
+  const { employees: profileEmployees, loading: profilesLoading } = useEmployees();
+  const [assignmentLogs, setAssignmentLogs] = useState([]);
+  const [selectedEmployeeForDetails, setSelectedEmployeeForDetails] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   useEffect(() => {
     loadAssignmentLogs();
-  }, []);
+  }, [user, refreshKey]);
 
   const loadAssignmentLogs = async () => {
-    const managerStr = localStorage.getItem('manager');
-    if (managerStr) {
+    const managerId = user?.id || JSON.parse(localStorage.getItem('manager'))?.managerId;
+    
+    if (managerId) {
       try {
-        const manager = JSON.parse(managerStr);
-        const response = await taskService.getTaskQueue(manager.managerId);
-        // API response: { success: true, tasks: [...] }
+        const response = await taskService.getTaskQueue(managerId);
         const tasks = response.data.tasks || [];
 
         const mappedLogs = tasks.map(task => ({
           id: task.taskId,
           taskName: task.title,
-          projectName: task.metadata?.projectName || 'General',
+          projectName: task.metadata?.projectName || task.projectName || 'General',
           taskDescription: task.description,
           assignedBy: task.managerName,
           assignedTo: (task.assignedEmployees && task.assignedEmployees.length > 0)
             ? task.assignedEmployees.map(e => e.employeeName).join(', ')
-            : 'Unassigned',
+            : (task.employeeName || 'Unassigned'),
           assignedToId: (task.assignedEmployees && task.assignedEmployees.length > 0)
             ? task.assignedEmployees[0].employeeId
-            : null,
+            : (task.employeeId || null),
           assignedAt: task.assignedAt || task.createdAt,
           status: task.status,
           priority: task.priority,
           dueDate: task.deadline,
-          source: 'ASSIGN_TASK' // Default icon for API tasks
+          source: 'ASSIGN_TASK'
         }));
 
-        // Sort descending by date
         mappedLogs.sort((a, b) => new Date(b.assignedAt) - new Date(a.assignedAt));
         setAssignmentLogs(mappedLogs);
       } catch (error) {
         console.error("Failed to load task queue from API", error);
-        // On error, we simply don't populate the logs to avoid confusing the user with stale mock data
       }
-    } else {
-      // Fallback for non-manager preview or testing
-      const logs = getAssignmentLogs();
-      setAssignmentLogs(logs);
     }
   };
+
+  // Derive active task count per employee from existing manager queue for sorting purposes
+  const employeeActiveCounts = useMemo(() => {
+    const counts = {};
+    assignmentLogs.forEach(log => {
+      if (log.status === 'Assigned' || log.status === 'In Progress') {
+        const id = log.assignedToId;
+        if (id) {
+          counts[id] = (counts[id] || 0) + 1;
+        }
+      }
+    });
+    return counts;
+  }, [assignmentLogs]);
+
+  // Sort employee list: Ascending order of active tasks (0 tasks first)
+  const sortedEmployees = useMemo(() => {
+    if (!profileEmployees) return [];
+    return [...profileEmployees].sort((a, b) => {
+      const countA = employeeActiveCounts[a.id] || 0;
+      const countB = employeeActiveCounts[b.id] || 0;
+      return countA - countB;
+    });
+  }, [profileEmployees, employeeActiveCounts]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -134,16 +243,6 @@ const ManagerDashboard = ({ onOpenImport, onAction }) => {
     });
   };
 
-  const getSourceIcon = (source) => {
-    switch(source) {
-      case 'NEW_PROJECT': return 'fa-folder-plus';
-      case 'ALLOCATION': return 'fa-sliders';
-      case 'ASSIGN_TASK': return 'fa-tasks';
-      case 'EXCEL_IMPORT': return 'fa-file-excel';
-      default: return 'fa-check';
-    }
-  };
-
   const getPriorityColor = (priority) => {
     switch(priority) {
       case 'Critical': return 'bg-error/10 text-error';
@@ -154,472 +253,136 @@ const ManagerDashboard = ({ onOpenImport, onAction }) => {
     }
   };
 
-  const getWorkloadColor = (workload) => {
-    if (workload >= 100) return 'text-error';
-    if (workload >= 80) return 'text-warning';
-    return 'text-success';
-  };
-
-  const getWorkloadBgColor = (workload) => {
-    if (workload >= 100) return 'bg-error';
-    if (workload >= 80) return 'bg-warning';
-    return 'bg-success';
-  };
-
-  if (loading) {
+  if (profilesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
           <i className="fa-solid fa-spinner fa-spin text-4xl text-primary"></i>
-          <p className="text-textSecondary font-semibold">Loading Dashboard...</p>
+          <p className="text-textSecondary font-black tracking-widest uppercase opacity-70">Synchronizing Personnel Records...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
-        <button 
-          onClick={onOpenImport} 
-          className="px-6 py-2 border border-primary text-primary font-bold rounded text-sm hover:bg-primary/5 transition-all"
-          aria-label="Import Personnel Data"
-        >
-          <i className="fa-solid fa-file-upload mr-2"></i>
-          Import & Auto-Assign Tasks
-        </button>
-        <button 
-          onClick={() => onAction('NEW_PROJECT')} 
-          className="btn-audvik px-6 py-2 rounded font-bold text-sm shadow-sm"
-          aria-label="Initialize Track"
-        >
-          <i className="fa-solid fa-rocket mr-2"></i>
-          Initialize Track
-        </button>
+    <div className="space-y-8 animate-fadeIn">
+      {/* Action Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-black text-slateBrand tracking-tight">Personnel Overview</h2>
+          <p className="text-sm text-textSecondary font-bold opacity-70">Real-time active workload and objective tracking</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={onOpenImport} 
+            className="px-6 py-2.5 bg-white border-2 border-borderAudvik text-slateBrand font-black rounded-2xl text-[10px] uppercase tracking-widest hover:border-primary/40 hover:text-primary transition-all shadow-sm flex items-center gap-2"
+          >
+            <i className="fa-solid fa-file-excel"></i>
+            Excel Auto-Assign
+          </button>
+          <button 
+            onClick={() => onAction('NEW_PROJECT')} 
+            className="btn-audvik px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2"
+          >
+            <i className="fa-solid fa-plus-circle"></i>
+            Initialize Track
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - 2/3 width */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Resource Bandwidth Overview */}
-          <Card title="Resource Bandwidth Overview">
-            <div className="h-64 flex items-center justify-center bg-bgAudvik rounded-lg border border-dashed border-borderAudvik">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Team Cards */}
+        <div className="lg:col-span-8 space-y-8">
+          <Card title="Operational Distribution Analytics">
+            <div className="h-64 flex items-center justify-center bg-bgAudvik rounded-[2.5rem] border border-dashed border-borderAudvik">
               <div className="text-center opacity-40">
-                <i className="fa-solid fa-chart-area text-4xl mb-2"></i>
-                <p className="text-sm font-bold uppercase tracking-widest">Analytics Unavailable</p>
+                <i className="fa-solid fa-chart-line text-4xl mb-3 text-primary"></i>
+                <p className="text-sm font-black uppercase tracking-widest text-slateBrand">Predictive Engine Syncing</p>
+                <p className="text-[10px] text-textSecondary font-bold mt-1">Live active task metrics are displayed in the resource cards above</p>
+              </div>
+            </div>
+          </Card>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-black text-slateBrand flex items-center gap-2">
+                <i className="fa-solid fa-users text-primary"></i>
+                Team Resource Overview
+                <span className="text-xs font-bold px-3 py-1 bg-primary/10 text-primary rounded-full">{profileEmployees.length} Members</span>
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sortedEmployees.map((emp) => (
+                <EmployeeResourceCard 
+                  key={emp.id} 
+                  employee={emp} 
+                  onAction={onAction} 
+                  onViewDetails={() => setSelectedEmployeeForDetails(emp)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Activity & Vital Metrics */}
+        <div className="lg:col-span-4 space-y-8">
+          <Card title="Team Vital Metrics">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center pb-4 border-b border-borderAudvik">
+                <div>
+                  <p className="text-[10px] font-black text-textSecondary uppercase tracking-widest">Efficiency Rating</p>
+                  <p className="text-xl font-black text-success">98.2%</p>
+                </div>
+                <div className="w-10 h-10 bg-success/5 text-success rounded-2xl flex items-center justify-center border border-success/10 shadow-sm">
+                  <i className="fa-solid fa-gauge-high"></i>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pb-4 border-b border-borderAudvik">
+                <div>
+                  <p className="text-[10px] font-black text-textSecondary uppercase tracking-widest">Active Personnel</p>
+                  <p className="text-xl font-black text-slateBrand">{profileEmployees.length}</p>
+                </div>
+                <div className="w-10 h-10 bg-primary/5 text-primary rounded-2xl flex items-center justify-center border border-primary/10 shadow-sm">
+                  <i className="fa-solid fa-user-gear"></i>
+                </div>
               </div>
             </div>
           </Card>
 
-          {/* Team Resource Overview */}
-          <div className="bg-white rounded-2xl border border-borderDiv shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-borderDiv bg-gradient-to-r from-primary/5 to-transparent">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <i className="fa-solid fa-users text-primary text-lg"></i>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-textPrimary">Team Resource Overview</h3>
-                    <p className="text-xs text-textSecondary mt-0.5">
-                      Sorted by availability • Updated just now
-                    </p>
-                  </div>
-                  <span className="ml-2 text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-bold">
-                    {allEmployees.length} Members
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setShowAllEmployees(!showAllEmployees)}
-                  className="flex items-center gap-2 text-sm text-primary font-bold hover:bg-primary/5 px-4 py-2 rounded-lg transition-all"
-                >
-                  {showAllEmployees ? (
-                    <>
-                      <i className="fa-solid fa-chevron-up"></i>
-                      Show Less
-                    </>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-chevron-down"></i>
-                      View All
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Scrollable Cards Container */}
-            <div className="p-6 bg-gray-50/50">
-              <div className="relative">
-                {allEmployees.length === 0 ? (
-                   <div className="text-center py-10 text-textSecondary">
-                     <p>No employees found.</p>
-                   </div>
-                ) : (
-                  <div className="overflow-x-auto pb-4 custom-scrollbar -mx-2 px-2">
-                    <div className="flex gap-5 min-w-max">
-                      {allEmployees
-                        .slice(0, showAllEmployees ? allEmployees.length : 10)
-                        .map((emp) => (
-                          <div 
-                            key={emp.id} 
-                            className="w-[340px] flex-shrink-0 bg-white border-2 border-borderDiv rounded-2xl hover:border-primary/40 hover:shadow-xl transition-all duration-300 overflow-hidden"
-                          >
-                            {/* Card Header */}
-                            <div className={`p-5 relative overflow-hidden ${
-                              emp.workload >= 100 ? 'bg-gradient-to-br from-error/10 to-error/5' :
-                              emp.workload >= 80 ? 'bg-gradient-to-br from-warning/10 to-warning/5' :
-                              'bg-gradient-to-br from-success/10 to-success/5'
-                            }`}>
-                              <div className="flex items-start justify-between relative z-10">
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ${
-                                    emp.workload >= 100 ? 'bg-gradient-to-br from-error to-error/80 text-white' :
-                                    emp.workload >= 80 ? 'bg-gradient-to-br from-warning to-warning/80 text-white' :
-                                    'bg-gradient-to-br from-primary to-primaryDark text-white'
-                                  }`}>
-                                    {(emp.name || '?')
-                                        .split(' ')
-                                        .map(n => n[0])
-                                        .join('')
-                                      }
-                                  </div>
-                                  <div>
-                                    <h4 className="text-base font-bold text-textPrimary leading-tight mb-1">
-                                      {emp.name}
-                                    </h4>
-                                    <p className="text-xs font-bold text-primary uppercase">
-                                      {emp.role}
-                                    </p>
-                                    <p className="text-[10px] text-textSecondary mt-1 flex items-center gap-1">
-                                      <i className="fa-solid fa-building text-xs"></i>
-                                      {emp.department ?? '—'}
-                                    </p>
-                                  </div>
-                                </div>
-                                {/* Eye Icon - View Details */}
-                                <button 
-                                  onClick={() => setSelectedEmployeeForDetails(emp)}
-                                  className="w-11 h-11 rounded-xl bg-white/80 backdrop-blur-sm border-2 border-primary/30 flex items-center justify-center text-primary hover:bg-primary hover:text-white hover:border-primary hover:scale-110 transition-all shadow-md"
-                                  aria-label={`View details for ${emp.name}`}
-                                  title="View Employee Details"
-                                >
-                                  <i className="fa-solid fa-eye text-lg"></i>
-                                </button>
-                              </div>
-                              <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                            </div>
-
-                            {/* Card Body */}
-                            <div className="p-5 space-y-4">
-                              {/* Projects and Workload Stats */}
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gray-50 rounded-xl p-3 border border-borderDiv">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                                      <i className="fa-solid fa-briefcase text-primary text-sm"></i>
-                                    </div>
-                                    <p className="text-[10px] text-textSecondary font-bold uppercase">Tasks</p>
-                                  </div>
-                                  <p className="text-2xl font-black text-primary leading-none">{emp.projects}</p>
-                                </div>
-                                
-                                <div className="bg-gray-50 rounded-xl p-3 border border-borderDiv">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                      emp.workload >= 100 ? 'bg-error/10' :
-                                      emp.workload >= 80 ? 'bg-warning/10' :
-                                      'bg-success/10'
-                                    }`}>
-                                      <i className={`fa-solid fa-chart-line text-sm ${getWorkloadColor(emp.workload)}`}></i>
-                                    </div>
-                                    <p className="text-[10px] text-textSecondary font-bold uppercase">Workload</p>
-                                  </div>
-                                  <p className={`text-2xl font-black leading-none ${getWorkloadColor(emp.workload)}`}>
-                                    {emp.workload}%
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Workload Progress Bar */}
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="text-textSecondary font-semibold">Capacity Usage</span>
-                                  <span className={`font-bold ${getWorkloadColor(emp.workload)}`}>
-                                    {emp.workload >= 100 ? 'Over Limit' : 
-                                     emp.workload >= 80 ? 'High' : 'Normal'}
-                                  </span>
-                                </div>
-                                <div className="relative">
-                                  <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
-                                    <div 
-                                      className={`h-full ${getWorkloadBgColor(emp.workload)} transition-all duration-700 ease-out rounded-full relative`}
-                                      style={{ width: `${Math.min(emp.workload, 100)}%` }}
-                                    >
-                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20"></div>
-                                    </div>
-                                  </div>
-                                  {emp.workload > 100 && (
-                                    <div className="absolute -right-1 top-0 bottom-0 flex items-center">
-                                      <div className="w-5 h-5 bg-error rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                                        <i className="fa-solid fa-exclamation text-white text-xs"></i>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Status and Performance Badges */}
-                              <div className="flex items-center justify-between">
-                                <span className={`text-xs px-3 py-2 rounded-lg font-bold flex items-center gap-2 ${
-                                  emp.workload >= 100 ? 'bg-error/10 text-error' :
-                                  emp.workload >= 80 ? 'bg-warning/10 text-warning' :
-                                  'bg-success/10 text-success'
-                                }`}>
-                                  {emp.workload >= 100 ? (
-                                    <>
-                                      <i className="fa-solid fa-triangle-exclamation"></i>
-                                      Overloaded
-                                    </>
-                                  ) : emp.workload >= 80 ? (
-                                    <>
-                                      <i className="fa-solid fa-hourglass-half"></i>
-                                      Busy
-                                    </>
-                                  ) : (
-                                    <>
-                                      <i className="fa-solid fa-circle-check"></i>
-                                      Available
-                                    </>
-                                  )}
-                                </span>
-                                <span className="text-xs text-textSecondary font-semibold bg-gray-100 px-3 py-2 rounded-lg flex items-center gap-1">
-                                  <i className="fa-solid fa-chart-simple text-xs"></i>
-                                  {emp.performance ?? 'N/A'}                                </span>
-                              </div>
-
-                              {/* Single Assign Button - Always Visible */}
-                              <button 
-                                onClick={() => onAction('ASSIGN_TASK', emp)}
-                                className="w-full py-3 text-sm font-bold text-white bg-primary rounded-xl transition-all flex items-center justify-center gap-2 hover:bg-primaryDark hover:shadow-lg"
-                              >
-                                <i className="fa-solid fa-plus"></i>
-                                Assign New Task
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Scroll Indicators */}
-                {!showAllEmployees && allEmployees.length > 10 && (
-                  <>
-                    <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-gray-50/50 to-transparent pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 bottom-4 w-24 bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none"></div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Footer Statistics */}
-            <div className="px-6 py-4 bg-white border-t border-borderDiv">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-success rounded-full shadow-sm"></div>
-                    <span className="text-xs text-textSecondary">
-                      Available: <strong className="text-success font-bold">{allEmployees.filter(e => (e.workload ?? 0) < 80).length}</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-warning rounded-full shadow-sm"></div>
-                    <span className="text-xs text-textSecondary">
-                      Near Capacity: <strong className="text-warning font-bold">{allEmployees.filter(e => e.workload >= 80 && e.workload < 100).length}</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-error rounded-full shadow-sm animate-pulse"></div>
-                    <span className="text-xs text-textSecondary">
-                      Overloaded: <strong className="text-error font-bold">{allEmployees.filter(e => e.workload >= 100).length}</strong>
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs text-textSecondary font-semibold flex items-center gap-2">
-                  <i className="fa-solid fa-arrow-right"></i>
-                  Scroll to view more
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Assignment Logs */}
-          <Card 
-            title={
-              <div className="flex items-center gap-2">
-                <span>Assignment Activity Log</span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-bold">
-                  {assignmentLogs.length}
-                </span>
-              </div>
-            }
-            actions={
-              <button 
-                onClick={loadAssignmentLogs}
-                className="text-primary text-xs font-bold hover:underline"
-              >
-                <i className="fa-solid fa-rotate-right mr-1"></i>
-                Refresh
-              </button>
-            }
-          >
-            <div className="max-h-[600px] overflow-y-auto custom-scrollbar">
+          <Card title="Dispatch Activity Log" actions={<button onClick={() => setRefreshKey(k => k + 1)} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline"><i className="fa-solid fa-rotate-right mr-1"></i> Sync</button>}>
+            <div className="max-h-[600px] overflow-y-auto custom-scrollbar space-y-4 pr-1">
               {assignmentLogs.length === 0 ? (
-                <div className="text-center py-12 text-textSecondary">
-                  <i className="fa-solid fa-inbox text-4xl mb-3 opacity-30"></i>
-                  <p className="font-semibold">No assignments yet</p>
-                  <p className="text-sm mt-1">Upload an Excel file or initialize a track</p>
-                </div>
+                <div className="text-center py-20 text-textSecondary opacity-30 italic"><p className="text-xs font-bold uppercase">No recent activity found.</p></div>
               ) : (
-                <div className="space-y-4">
-                  {assignmentLogs.map((log) => (
-                    <div 
-                      key={log.id} 
-                      className="bg-white border-2 border-borderDiv rounded-2xl p-5 hover:border-primary/30 hover:shadow-md transition-all"
-                    >
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex items-start gap-3 flex-1">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            log.source === 'NEW_PROJECT' ? 'bg-primary/10 text-primary' :
-                            log.source === 'ALLOCATION' ? 'bg-warning/10 text-warning' :
-                            log.source === 'EXCEL_IMPORT' ? 'bg-success/10 text-success' :
-                            'bg-success/10 text-success'
-                          }`}>
-                            <i className={`fa-solid ${getSourceIcon(log.source)} text-lg`}></i>
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-textPrimary text-base leading-tight mb-1">
-                              {log.taskName}
-                            </h4>
-                            <p className="text-sm text-primary font-semibold">
-                              <i className="fa-solid fa-folder text-xs mr-1"></i>
-                              {log.projectName}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <span className="text-[11px] text-textSecondary font-bold whitespace-nowrap bg-gray-100 px-3 py-1 rounded-full">
-                          {formatDate(log.assignedAt)}
-                        </span>
+                assignmentLogs.map((log) => (
+                  <div key={log.id} className="bg-white border border-borderDiv rounded-[1.5rem] p-4 hover:border-primary/30 transition-all shadow-sm">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-slateBrand text-xs truncate" title={log.taskName}>{log.taskName}</h4>
+                        <p className="text-[9px] text-primary font-black uppercase tracking-widest mt-0.5">{log.projectName}</p>
                       </div>
-
-                      {log.taskDescription && log.taskDescription !== log.taskName && (
-                        <p className="text-sm text-textSecondary mb-3 leading-relaxed">
-                          {log.taskDescription}
-                        </p>
-                      )}
-
-                      {log.assignedBy && (
-                        <div className="mb-3 p-3 bg-bgAudvik/50 rounded-lg border border-borderAudvik">
-                          <div className="flex items-center gap-2">
-                            <i className="fa-solid fa-user-tie text-primary text-xs"></i>
-                            <span className="text-xs text-textSecondary">Assigned by:</span>
-                            <span className="text-xs font-bold text-primary">{log.assignedBy}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-borderDiv">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <div className="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-lg">
-                            <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold text-xs">
-                              {log.assignedTo ? log.assignedTo[0] : '?'}
-                            </div>
-                            <span className="text-xs font-bold text-primary">{log.assignedTo}</span>
-                          </div>
-
-                          {log.priority && (
-                            <span className={`text-xs px-3 py-1.5 rounded-lg font-bold ${getPriorityColor(log.priority)}`}>
-                              <i className="fa-solid fa-flag text-xs mr-1"></i>
-                              {log.priority}
-                            </span>
-                          )}
-
-                          <span className="text-xs px-3 py-1.5 bg-success/10 text-success rounded-lg font-bold">
-                            <i className="fa-solid fa-check-circle text-xs mr-1"></i>
-                            {log.status}
-                          </span>
-                        </div>
-
-                        {log.dueDate && (
-                          <div className="flex items-center gap-2 text-xs text-textSecondary bg-gray-50 px-3 py-1.5 rounded-lg">
-                            <i className="fa-solid fa-calendar"></i>
-                            <span className="font-semibold">
-                              Due: {new Date(log.dueDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                              })}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-[9px] text-textSecondary font-black bg-bgAudvik px-2 py-1 rounded-lg border border-borderAudvik whitespace-nowrap shadow-sm">{formatDate(log.assignedAt)}</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-borderDiv border-dashed">
+                      <div className="flex items-center gap-2">
+                         <div className="w-6 h-6 bg-slateBrand text-white rounded-lg flex items-center justify-center text-[9px] font-black shadow-inner">{log.assignedTo[0]}</div>
+                         <span className="text-[10px] font-black text-slateBrand truncate max-w-[100px]">{log.assignedTo}</span>
+                      </div>
+                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${getPriorityColor(log.priority)} uppercase tracking-tighter`}>{log.priority}</span>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           </Card>
         </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          <Card title="Team Vital Metrics">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b border-borderAudvik/50">
-                <span className="text-sm font-medium text-textSecondary">Total Engineers</span>
-                <span className="text-lg font-bold text-slateBrand">{allEmployees.length}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-borderAudvik/50">
-                <span className="text-sm font-medium text-textSecondary">Utilization</span>
-                <span className="text-lg font-bold text-success">
-                  {allEmployees.length > 0 ? '74.2%' : '0%'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-borderAudvik/50">
-                <span className="text-sm font-medium text-textSecondary">Active Projects</span>
-                <span className="text-lg font-bold text-primary">0</span>
-              </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-sm font-medium text-textSecondary">Tasks Assigned Today</span>
-                <span className="text-lg font-bold text-warning">
-                  {assignmentLogs.filter(log => {
-                    if (!log.assignedAt) return false;
-                    const today = new Date().toDateString();
-                    const logDate = new Date(log.assignedAt).toDateString();
-                    return today === logDate;
-                  }).length}
-                </span>
-              </div>
-            </div>
-          </Card>
-        </div>
       </div>
 
-      {/* Employee Details Modal */}
       {selectedEmployeeForDetails && (
-        <EmployeeDetailsModal 
-          employee={selectedEmployeeForDetails}
-          onClose={() => setSelectedEmployeeForDetails(null)}
-        />
+        <EmployeeDetailsModal employee={selectedEmployeeForDetails} onClose={() => setSelectedEmployeeForDetails(null)} />
       )}
     </div>
   );
 };
-
 
 export default ManagerDashboard;

@@ -8,6 +8,7 @@ from app.routers.tasks import router as tasks_router
 from app.routers.notifications import router as notifications_router
 from app.routers.task_import import  task_import_router
 from app.routers.employee_tasks import router as employee_tasks_router
+from app.routers.projects import router as projects_router
 
 
 
@@ -52,6 +53,7 @@ app.include_router(tasks_router)
 app.include_router(notifications_router)
 app.include_router(task_import_router)
 app.include_router(employee_tasks_router)
+app.include_router(projects_router)
 
 
 

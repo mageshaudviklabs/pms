@@ -1,4 +1,4 @@
-import apiClient from "../api";
+import apiClient from "./index.js";
 
 export const managerService = {
   // GET /api/managers/{managerId}

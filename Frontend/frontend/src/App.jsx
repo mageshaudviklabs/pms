@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import ManagerDashboard from './pages/ManagerDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import TeamOverview from './pages/TeamOverview';
+import ProjectsTasks from './pages/ProjectsTasks';
 import ActionOverlay from './components/ActionOverlay';
 import ExcelImportModal from './components/ExcelImportModal';
 import LoginPage from './pages/LoginPage';
@@ -36,8 +37,7 @@ const App = () => {
     setSelectedEmployee(null);
   };
 
-  const handleActionSuccess = (assignment) => {
-    // Trigger refresh of dashboard by updating key
+  const handleActionSuccess = () => {
     setRefreshKey(prev => prev + 1);
   };
 
@@ -53,8 +53,11 @@ const App = () => {
               key={refreshKey}
               onOpenImport={() => setIsImportModalOpen(true)} 
               onAction={handleActionTrigger} 
+              user={currentUser}
             /> 
           : <EmployeeDashboard user={currentUser} />;
+      case 'Projects & Tasks':
+        return <ProjectsTasks user={currentUser} />;
       case 'Team Overview':
         return <TeamOverview onAction={handleActionTrigger} />;
       case 'My Profile':
@@ -93,6 +96,5 @@ const App = () => {
     </>
   );
 };
-
 
 export default App;

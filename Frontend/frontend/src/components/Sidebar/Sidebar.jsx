@@ -6,11 +6,13 @@ import Logo from '../Logo';
 const Sidebar = ({ activeTab, setActiveTab, role, onLogout }) => {
   const menuItems = role === UserRole.MANAGER ? [
     { name: 'Dashboard', icon: 'fa-table-columns' },
+    { name: 'Projects & Tasks', icon: 'fa-diagram-project' },
     { name: 'Team Overview', icon: 'fa-users' },
     { name: 'Analytics', icon: 'fa-chart-line' },
     { name: 'Help Desk', icon: 'fa-circle-question' }
   ] : [
     { name: 'Dashboard', icon: 'fa-table-columns' },
+    { name: 'Projects & Tasks', icon: 'fa-diagram-project' },
     { name: 'My Profile', icon: 'fa-user' },
     { name: 'Leave Apply', icon: 'fa-plus' },
     { name: 'Help Desk', icon: 'fa-circle-question' }
