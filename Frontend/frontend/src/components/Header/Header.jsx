@@ -111,20 +111,14 @@ const Header = ({ user, onLogout, activeTab }) => {
 
   return (
     <header className="h-16 bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] flex items-center justify-between px-8 text-white z-50 shrink-0 shadow-lg relative">
+      {/* Left Side - Page Title */}
       <div className="flex items-center gap-4">
         <h2 className="text-xl font-black tracking-tight">{activeTab || 'Dashboard'}</h2>
-        <div className="h-6 w-px bg-white/30"></div>
-        <div className="flex items-center gap-2 text-xs opacity-80">
-          <span className="font-semibold">HOME</span>
-          <i className="fa-solid fa-chevron-right text-[8px]"></i>
-          <span className="font-bold">{(activeTab || 'DASHBOARD').toUpperCase()}</span>
-        </div>
       </div>
 
+      {/* Right Side - User Info */}
       <div className="flex items-center gap-6">
-        {/* ===============================
-            Notification Bell (Employee)
-           =============================== */}
+        {/* Notification Bell (Employee Only) */}
         {isEmployee && (
           <div className="relative" ref={dropdownRef}>
             <button
@@ -153,9 +147,7 @@ const Header = ({ user, onLogout, activeTab }) => {
           </div>
         )}
 
-        {/* ===============================
-            User Profile
-           =============================== */}
+        {/* User Profile */}
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-bold leading-none">{user?.name || 'User'}</p>
