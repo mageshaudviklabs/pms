@@ -207,15 +207,31 @@ const EmployeeDetailsModal = ({ employee, onClose }) => {
                         history.fullHistory.map((item, idx) => (
                           <div key={idx} className="flex gap-6 items-start animate-fadeIn">
                             <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0 shadow-glow"></div>
+
                             <div className="flex-1 min-w-0">
-                              <p className="text-[10px] font-black text-textSecondary opacity-40 uppercase tracking-tighter mb-1">{new Date(item.timestamp).toLocaleString()}</p>
+                              <p className="text-[10px] font-black text-textSecondary opacity-40 uppercase tracking-tighter mb-1">
+                                {item.completedAt || item.assignedAt
+                                  ? new Date(item.completedAt || item.assignedAt).toLocaleString()
+                                  : "—"}
+                              </p>
+
                               <p className="text-xs font-bold text-slateBrand leading-relaxed">
-                                {item.taskTitle || item.title} <span className="text-[10px] font-medium text-textSecondary opacity-60 mx-1">updated to</span>
-                                <span className={`ml-2 px-2 py-0.5 rounded text-[9px] font-black uppercase border shadow-sm ${getStatusStyle(item.status)}`}>{item.status}</span>
+                                {item.taskTitle || item.title}
+                                <span className="text-[10px] font-medium text-textSecondary opacity-60 mx-1">
+                                  updated to
+                                </span>
+                                <span
+                                  className={`ml-2 px-2 py-0.5 rounded text-[9px] font-black uppercase border shadow-sm ${getStatusStyle(
+                                    item.status
+                                  )}`}
+                                >
+                                  {item.status}
+                                </span>
                               </p>
                             </div>
                           </div>
                         ))
+
                       )}
                     </div>
                   </div>

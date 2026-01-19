@@ -1,5 +1,5 @@
 {
-  "lastTaskId": 11,
+  "lastTaskId": 7,
   "tasks": [
     {
       "title": "UI Development",
@@ -9,7 +9,7 @@
       "metadata": {
         "projectName": "PMS System"
       },
-      "status": "In Progress",
+      "status": "Completed",
       "managerId": "MGR001",
       "managerName": "Rajesh Krishnan",
       "assignedEmployees": [
@@ -18,8 +18,8 @@
           "employeeName": "Aniket Baral"
         }
       ],
-      "createdAt": "2026-01-19 14:43:12",
-      "assignedAt": "2026-01-19 14:43:12",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 1
     },
     {
@@ -39,8 +39,8 @@
           "employeeName": "Magesh"
         }
       ],
-      "createdAt": "2026-01-19 14:43:12",
-      "assignedAt": "2026-01-19 14:43:12",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 2
     },
     {
@@ -60,8 +60,8 @@
           "employeeName": "Rishi Raj"
         }
       ],
-      "createdAt": "2026-01-19 14:43:12",
-      "assignedAt": "2026-01-19 14:43:12",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 3
     },
     {
@@ -81,8 +81,8 @@
           "employeeName": "S Harsha"
         }
       ],
-      "createdAt": "2026-01-19 14:43:12",
-      "assignedAt": "2026-01-19 14:43:12",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 4
     },
     {
@@ -102,8 +102,8 @@
           "employeeName": "Tanishka Singh"
         }
       ],
-      "createdAt": "2026-01-19 14:43:12",
-      "assignedAt": "2026-01-19 14:43:13",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 5
     },
     {
@@ -123,103 +123,19 @@
           "employeeName": "Viraj Ray"
         }
       ],
-      "createdAt": "2026-01-19 14:43:13",
-      "assignedAt": "2026-01-19 14:43:13",
+      "createdAt": "2026-01-19 15:12:36",
+      "assignedAt": "2026-01-19 15:12:36",
       "taskId": 6
     },
     {
-      "title": "Web Dashboard UI",
-      "description": "Designing and developing\nresponsive admin dashboard\nfor AI Attendance System",
-      "priority": "Medium",
-      "deadline": "2026-04-02",
-      "metadata": {
-        "projectName": "AI Attendance System"
-      },
-      "status": "Completed",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "assignedEmployees": [
-        {
-          "employeeId": "EMP001",
-          "employeeName": "Aniket Baral"
-        }
-      ],
-      "createdAt": "2026-01-19 14:43:25",
-      "assignedAt": "2026-01-19 14:43:25",
-      "taskId": 7
-    },
-    {
-      "title": "API Development",
-      "description": "Developing secure APIs\nfor attendance records\nand user management",
-      "priority": "Medium",
-      "deadline": "2026-04-03",
-      "metadata": {
-        "projectName": "AI Attendance System"
-      },
-      "status": "Assigned",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "assignedEmployees": [
-        {
-          "employeeId": "EMP002",
-          "employeeName": "Magesh"
-        }
-      ],
-      "createdAt": "2026-01-19 14:43:25",
-      "assignedAt": "2026-01-19 14:43:25",
-      "taskId": 8
-    },
-    {
-      "title": "Schema Design",
-      "description": "Designing optimized database\nschema for attendance logs\nand reports",
-      "priority": "Medium",
-      "deadline": "2026-04-04",
-      "metadata": {
-        "projectName": "AI Attendance System"
-      },
-      "status": "Assigned",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "assignedEmployees": [
-        {
-          "employeeId": "EMP005",
-          "employeeName": "Tanishka Singh"
-        }
-      ],
-      "createdAt": "2026-01-19 14:43:25",
-      "assignedAt": "2026-01-19 14:43:25",
-      "taskId": 9
-    },
-    {
-      "title": "UI Testing",
-      "description": "Testing UI flows,\nvalidating forms,\nand fixing visual bugs",
-      "priority": "Medium",
-      "deadline": "2026-04-03",
-      "metadata": {
-        "projectName": "AI Attendance System"
-      },
-      "status": "Assigned",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "assignedEmployees": [
-        {
-          "employeeId": "EMP006",
-          "employeeName": "Viraj Ray"
-        }
-      ],
-      "createdAt": "2026-01-19 14:43:25",
-      "assignedAt": "2026-01-19 14:43:25",
-      "taskId": 10
-    },
-    {
       "title": "DASHBOARD",
-      "description": "asgdf",
+      "description": "JHGF",
       "priority": "Medium",
-      "deadline": "2026-01-28",
+      "deadline": "2026-02-06",
       "metadata": {
-        "projectName": "GEN AI"
+        "projectName": "PMS-UPDATE"
       },
-      "status": "Assigned",
+      "status": "In Progress",
       "managerId": "MGR001",
       "managerName": "Rajesh Krishnan",
       "assignedEmployees": [
@@ -228,9 +144,9 @@
           "employeeName": "Aniket Baral"
         }
       ],
-      "createdAt": "2026-01-19 14:43:42",
-      "assignedAt": "2026-01-19 14:43:43",
-      "taskId": 11
+      "createdAt": "2026-01-19 15:13:59",
+      "assignedAt": "2026-01-19 15:14:00",
+      "taskId": 7
     }
   ]
 }

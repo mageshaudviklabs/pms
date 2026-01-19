@@ -14,7 +14,7 @@ export const taskService = {
   getAllTasks: () => apiClient.get("/api/tasks/"),
 
   // GET /api/tasks/employee/{employeeId} (Fetch tasks for a specific employee)
-  getEmployeeTasks: (employeeId) => apiClient.get(`/api/tasks/employee/${employeeId}/`),
+  getEmployeeTasks: (employeeId) => apiClient.get(`/api/tasks/employee/${employeeId}`),
 
   // PATCH /api/tasks/{taskId}/employee-status (Update task status by employee)
   updateTaskStatus: (taskId, employeeId, newStatus) => 
