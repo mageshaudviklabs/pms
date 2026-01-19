@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'https://c6f459a3544d.ngrok-free.app';
 export const APP_NAME = 'ElitePMS';
 
 export const ACTION_TYPES = {

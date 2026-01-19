@@ -1,14 +1,6 @@
 {
-  "lastProjectId": 1,
+  "lastProjectId": 0,
   "projects": [
-    {
-      "projectName": "PMS System",
-      "description": "Performance Management System",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "status": "Active",
-      "createdAt": "2026-01-17 19:21:54",
-      "projectId": 1
-    }
+
   ]
 }

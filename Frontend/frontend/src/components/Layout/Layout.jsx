@@ -13,16 +13,7 @@ const Layout = ({ children, user, activeTab, setActiveTab, onLogout }) => {
       />
       
       <div className="flex-1 flex flex-col min-w-0">
-        <Header user={user} onLogout={onLogout} />
-        
-        <nav className="h-10 bg-white border-b border-borderAudvik flex items-center px-8 text-[11px] font-bold text-textSecondary shrink-0">
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-house opacity-40"></i>
-            <span>HOME</span>
-            <i className="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
-            <span className="text-slateBrand">{activeTab.toUpperCase()}</span>
-          </div>
-        </nav>
+        <Header user={user} onLogout={onLogout} activeTab={activeTab} />
         
         <main className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-8">
           <div className="max-w-[1400px] mx-auto animate-fadeIn">

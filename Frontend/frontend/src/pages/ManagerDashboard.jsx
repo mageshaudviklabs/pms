@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import useEmployees from '../hooks/useEmployees';
-import { getAssignmentLogs } from '../services/assignmentService';
 import { taskService } from '../api/taskApi';
-import { employeeService } from '../api/employeeApi';
-import Card from '../components/Card';
 import EmployeeDetailsModal from '../components/EmployeeDetailsModal/EmployeeDetailsModal';
-
-// --- Redesigned Employee Resource Card Component ---
-const EmployeeResourceCard = ({ employee, onAction, onViewDetails }) => {
+ 
+// --- Horizontal Scrollable Employee Card ---
+const HorizontalEmployeeCard = ({ employee, onAction, onViewDetails }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -27,151 +24,281 @@ const EmployeeResourceCard = ({ employee, onAction, onViewDetails }) => {
     };
     fetchTasks();
   }, [employee.id]);
-
+ 
   const activeTasks = tasks.filter(t => t.status === 'Assigned' || t.status === 'In Progress');
   const activeCount = activeTasks.length;
-
-  // Status Logic: 0-1 Available, 2-3 Moderate, 4+ Busy
+ 
   const getStatus = () => {
-    if (activeCount >= 4) return { label: 'BUSY', color: 'bg-error/10 text-error border-error/20' };
-    if (activeCount >= 2) return { label: 'MODERATE', color: 'bg-warning/10 text-warning border-warning/20' };
-    return { label: 'AVAILABLE', color: 'bg-success/10 text-success border-success/20' };
+    if (activeCount >= 4) return { label: 'BUSY', color: 'bg-red-50 text-red-600 border-red-200' };
+    if (activeCount >= 2) return { label: 'MODERATE', color: 'bg-amber-50 text-amber-600 border-amber-200' };
+    return { label: 'AVAILABLE', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
   };
-
+ 
   const status = getStatus();
-
+ 
   if (loading) {
     return (
-      <div className="bg-white border border-borderDiv rounded-[2rem] p-6 h-48 flex items-center justify-center animate-pulse">
-        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+      <div className="flex-shrink-0 w-[280px] bg-white border-2 border-gray-300 rounded-2xl p-5 shadow-md flex items-center justify-center h-[240px]">
+        <div className="w-8 h-8 border-3 border-[#9B8AC7]/30 border-t-[#9B8AC7] rounded-full animate-spin"></div>
       </div>
     );
   }
-
+ 
   return (
-    <div 
-      onClick={onViewDetails}
-      className="bg-white border border-borderDiv rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative h-full cursor-pointer overflow-hidden"
-    >
-      {/* Top Section: Avatar, Name, Role, Counter */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
-          {/* Avatar with dynamic border based on workload */}
-          <div className={`w-14 h-14 rounded-2xl border-2 p-0.5 transition-colors ${
-            activeCount >= 4 ? 'border-error/40' : activeCount >= 2 ? 'border-warning/40' : 'border-success/40'
-          }`}>
-            <div className="w-full h-full bg-bgAudvik rounded-[10px] flex items-center justify-center font-bold text-primary text-xl overflow-hidden shadow-inner">
-               {(employee.name || '?').split(' ').map(n => n[0]).join('')}
-            </div>
+    <div className="flex-shrink-0 w-[280px] bg-white border-2 border-gray-300 rounded-2xl p-5 hover:border-[#9B8AC7] hover:shadow-xl transition-all h-full">
+      {/* Header Section */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Avatar */}
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9B8AC7] to-[#8B7AB7] flex items-center justify-center text-white font-black text-lg shadow-lg flex-shrink-0">
+            {(employee.name || '?').split(' ').map(n => n[0]).join('')}
           </div>
-          
-          <div className="min-w-0">
-            <h4 className="text-base font-bold text-textPrimary leading-tight truncate" title={employee.name}>
+         
+          <div className="flex-1 min-w-0">
+            <h4 className="font-black text-gray-900 text-sm truncate mb-0.5" title={employee.name}>
               {employee.name}
             </h4>
-            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mt-0.5 truncate opacity-80">
+            <p className="text-xs text-[#9B8AC7] font-bold uppercase truncate">
               {employee.designation}
             </p>
-            <p className="text-[10px] text-textSecondary font-medium truncate opacity-60">
-              {employee.department}
-            </p>
+            <p className="text-xs text-gray-500 truncate">{employee.department}</p>
           </div>
         </div>
-
-        {/* Task Counter Gauge Visual - Explicitly showing Active Count */}
-        <div className="relative w-11 h-11 flex-shrink-0">
-          <svg className="w-full h-full transform -rotate-90">
-            <circle
-              cx="22"
-              cy="22"
-              r="18"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="transparent"
-              className="text-bgAudvik"
-            />
-            <circle
-              cx="22"
-              cy="22"
-              r="18"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="transparent"
-              strokeDasharray={113}
-              strokeDashoffset={113 - (Math.min(activeCount, 4) / 4) * 113}
-              className={`transition-all duration-700 ${
-                activeCount >= 4 ? 'text-error' : activeCount >= 2 ? 'text-warning' : 'text-primary'
-              }`}
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center flex-col pt-0.5">
-            <span className="text-sm font-black text-slateBrand leading-none">{activeCount}</span>
-            <span className="text-[6px] font-bold text-textSecondary uppercase tracking-tighter opacity-70">Active</span>
-          </div>
+ 
+        {/* Active Counter Badge */}
+        <div className="text-center bg-gray-50 rounded-xl px-3 py-1.5 border-2 border-gray-200 flex-shrink-0 ml-2">
+          <div className="text-2xl font-black text-gray-900 leading-none">{activeCount}</div>
+          <div className="text-[8px] text-gray-500 font-bold uppercase mt-0.5">ACTIVE</div>
         </div>
       </div>
-
-      {/* Tags Section: Availability and Active Tasks chips */}
-      <div className="flex flex-wrap gap-2 items-center mb-6">
-        <span className={`text-[9px] px-2.5 py-1 rounded-lg border font-black tracking-widest ${status.color}`}>
+ 
+      {/* Status Badge */}
+      <div className="mb-4">
+        <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border-2 font-bold uppercase ${status.color}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${
+            activeCount >= 4 ? 'bg-red-500' : activeCount >= 2 ? 'bg-amber-500' : 'bg-emerald-500'
+          } animate-pulse`}></span>
           {status.label}
         </span>
-        
-        {activeTasks.length > 0 ? (
-          <>
-            {activeTasks.slice(0, 2).map((t, i) => (
-              <span key={i} className="text-[9px] px-2.5 py-1 rounded-lg font-bold bg-bgAudvik text-textSecondary border border-borderAudvik truncate max-w-[100px] shadow-sm" title={t.title}>
-                {t.title.toUpperCase()}
-              </span>
-            ))}
-            {activeTasks.length > 2 && (
-              <span className="text-[9px] font-bold text-primary bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">
-                +{activeTasks.length - 2}
-              </span>
-            )}
-          </>
-        ) : (
-          <span className="text-[9px] font-bold text-textSecondary italic opacity-40 tracking-wider">NO ACTIVE OBJECTIVES</span>
-        )}
       </div>
-
-      {/* Footer Stats & Actions */}
-      <div className="mt-auto pt-4 border-t border-borderDiv/50 flex items-center justify-end">
-        <div className="flex items-center gap-2 w-full">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onAction('ASSIGN_TASK', employee);
-            }}
-            className="w-full py-2.5 bg-white border border-borderAudvik text-primary text-[10px] font-bold rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+ 
+      {/* Spacer */}
+      <div className="flex-1 mb-4"></div>
+ 
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction('ASSIGN_TASK', employee);
+          }}
+          className="flex-1 py-2.5 bg-white border-2 border-[#9B8AC7] text-[#9B8AC7] text-xs font-bold rounded-xl hover:bg-[#9B8AC7]/10 transition-all"
+        >
+          Assign Task
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewDetails();
+          }}
+          className="flex-1 py-2.5 bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] text-white text-xs font-bold rounded-xl hover:from-[#8B7AB7] hover:to-[#7B6AA7] transition-all shadow-md border-2 border-[#8B7AB7]"
+        >
+          Work History
+        </button>
+      </div>
+    </div>
+  );
+};
+ 
+// --- Grid Employee Card (for View All modal) ---
+const GridEmployeeCard = ({ employee, onAction, onViewDetails }) => {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+ 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setLoading(true);
+        const response = await taskService.getEmployeeTasks(employee.id);
+        if (response.data && response.data.success) {
+          setTasks(response.data.tasks || []);
+        }
+      } catch (error) {
+        console.error(`Failed to fetch tasks for ${employee.name}`, error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTasks();
+  }, [employee.id]);
+ 
+  const activeTasks = tasks.filter(t => t.status === 'Assigned' || t.status === 'In Progress');
+  const activeCount = activeTasks.length;
+ 
+  const getStatus = () => {
+    if (activeCount >= 4) return { label: 'BUSY', color: 'bg-red-50 text-red-600 border-red-200' };
+    if (activeCount >= 2) return { label: 'MODERATE', color: 'bg-amber-50 text-amber-600 border-amber-200' };
+    return { label: 'AVAILABLE', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
+  };
+ 
+  const status = getStatus();
+ 
+  if (loading) {
+    return (
+      <div className="bg-white border-2 border-gray-300 rounded-2xl p-6 shadow-md flex items-center justify-center h-[240px]">
+        <div className="w-8 h-8 border-3 border-[#9B8AC7]/30 border-t-[#9B8AC7] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+ 
+  return (
+    <div className="bg-white border-2 border-gray-300 rounded-2xl p-5 hover:border-[#9B8AC7] hover:shadow-xl transition-all">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9B8AC7] to-[#8B7AB7] flex items-center justify-center text-white font-black text-lg shadow-lg">
+            {(employee.name || '?').split(' ').map(n => n[0]).join('')}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-black text-gray-900 text-sm truncate mb-0.5">{employee.name}</h4>
+            <p className="text-xs text-[#9B8AC7] font-bold uppercase truncate">{employee.designation}</p>
+            <p className="text-xs text-gray-500 truncate">{employee.department}</p>
+          </div>
+        </div>
+        <div className="text-center bg-gray-50 rounded-xl px-3 py-1.5 border-2 border-gray-200 flex-shrink-0">
+          <div className="text-2xl font-black text-gray-900 leading-none">{activeCount}</div>
+          <div className="text-[8px] text-gray-500 font-bold uppercase mt-0.5">ACTIVE</div>
+        </div>
+      </div>
+ 
+      {/* Status Badge */}
+      <div className="mb-4">
+        <span className={`inline-block text-xs px-3 py-1.5 rounded-lg border-2 font-bold uppercase ${status.color}`}>
+          {status.label}
+        </span>
+      </div>
+ 
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction('ASSIGN_TASK', employee);
+          }}
+          className="flex-1 py-2.5 bg-white border-2 border-[#9B8AC7] text-[#9B8AC7] text-xs font-bold rounded-xl hover:bg-[#9B8AC7]/10 transition-all"
+        >
+          Assign Task
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewDetails();
+          }}
+          className="flex-1 py-2.5 bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] text-white text-xs font-bold rounded-xl hover:from-[#8B7AB7] hover:to-[#7B6AA7] transition-all shadow-md border-2 border-[#8B7AB7]"
+        >
+          Work History
+        </button>
+      </div>
+    </div>
+  );
+};
+ 
+// --- View All Employees Modal ---
+const ViewAllEmployeesModal = ({ employees, onClose, onAction, onViewDetails }) => {
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-6 animate-fadeIn">
+      <div className="bg-[#E8E4F0] rounded-3xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden border-2 border-[#9B8AC7]/30">
+        {/* Modal Header */}
+        <div className="bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] text-white px-8 py-6 flex items-center justify-between border-b-2 border-[#8B7AB7]">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-white/30">
+              <i className="fa-solid fa-users text-3xl"></i>
+            </div>
+            <div>
+              <h2 className="text-2xl font-black">All Team Members</h2>
+              <p className="text-sm opacity-90 font-semibold">{employees.length} Personnel</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-12 h-12 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all flex items-center justify-center group border-2 border-white/20"
           >
-            <i className="fa-solid fa-plus-circle"></i>
-            Assign New Task
+            <i className="fa-solid fa-times text-2xl group-hover:rotate-90 transition-transform"></i>
           </button>
+        </div>
+ 
+        {/* Modal Body */}
+        <div className="p-8 overflow-y-auto max-h-[calc(90vh-100px)] custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {employees.map((emp) => (
+              <GridEmployeeCard
+                key={emp.id}
+                employee={emp}
+                onAction={onAction}
+                onViewDetails={() => {
+                  onClose();
+                  onViewDetails(emp);
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
+ 
 const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
   const { employees: profileEmployees, loading: profilesLoading } = useEmployees();
   const [assignmentLogs, setAssignmentLogs] = useState([]);
   const [selectedEmployeeForDetails, setSelectedEmployeeForDetails] = useState(null);
+  const [showAllEmployees, setShowAllEmployees] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
+  const [projects, setProjects] = useState([]);
+ 
   useEffect(() => {
     loadAssignmentLogs();
+    loadProjects();
   }, [user, refreshKey]);
-
+ 
+  const loadProjects = async () => {
+    try {
+      setProjects([
+        {
+          id: 1,
+          name: 'AI Attendance System',
+          memberCount: 4,
+          status: 'In Progress',
+          members: ['Aniket Baral', 'Magesh', 'Tanishka Singh', 'Viraj Ray']
+        },
+        {
+          id: 2,
+          name: 'Web Dashboard',
+          memberCount: 3,
+          status: 'Active',
+          members: ['Aniket Baral', 'Viraj Ray', 'Magesh']
+        },
+        {
+          id: 3,
+          name: 'API Development',
+          memberCount: 2,
+          status: 'Planning',
+          members: ['Magesh', 'Tanishka Singh']
+        }
+      ]);
+    } catch (error) {
+      console.error("Failed to load projects", error);
+    }
+  };
+ 
   const loadAssignmentLogs = async () => {
     const managerId = user?.id || JSON.parse(localStorage.getItem('manager'))?.managerId;
-    
+   
     if (managerId) {
       try {
         const response = await taskService.getTaskQueue(managerId);
         const tasks = response.data.tasks || [];
-
+ 
         const mappedLogs = tasks.map(task => ({
           id: task.taskId,
           taskName: task.title,
@@ -190,7 +317,7 @@ const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
           dueDate: task.deadline,
           source: 'ASSIGN_TASK'
         }));
-
+ 
         mappedLogs.sort((a, b) => new Date(b.assignedAt) - new Date(a.assignedAt));
         setAssignmentLogs(mappedLogs);
       } catch (error) {
@@ -198,8 +325,7 @@ const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
       }
     }
   };
-
-  // Derive active task count per employee from existing manager queue for sorting purposes
+ 
   const employeeActiveCounts = useMemo(() => {
     const counts = {};
     assignmentLogs.forEach(log => {
@@ -212,8 +338,7 @@ const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
     });
     return counts;
   }, [assignmentLogs]);
-
-  // Sort employee list: Ascending order of active tasks (0 tasks first)
+ 
   const sortedEmployees = useMemo(() => {
     if (!profileEmployees) return [];
     return [...profileEmployees].sort((a, b) => {
@@ -222,7 +347,7 @@ const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
       return countA - countB;
     });
   }, [profileEmployees, employeeActiveCounts]);
-
+ 
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -230,159 +355,263 @@ const ManagerDashboard = ({ onOpenImport, onAction, user }) => {
     const diffMs = now - date;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
-    
+   
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
-    
-    return date.toLocaleString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+   
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
-
-  const getPriorityColor = (priority) => {
-    switch(priority) {
-      case 'Critical': return 'bg-error/10 text-error';
-      case 'High': return 'bg-error/10 text-error';
-      case 'Medium': return 'bg-warning/10 text-warning';
-      case 'Low': return 'bg-success/10 text-success';
-      default: return 'bg-gray-100 text-textSecondary';
-    }
+ 
+  const getPriorityBadge = (priority) => {
+    const styles = {
+      'Critical': 'bg-red-100 text-red-700 border-red-200',
+      'High': 'bg-orange-100 text-orange-700 border-orange-200',
+      'Medium': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      'Low': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    };
+    return styles[priority] || 'bg-gray-100 text-gray-600 border-gray-200';
   };
-
+ 
   if (profilesLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-screen bg-[#E8E4F0]">
         <div className="flex flex-col items-center gap-4">
-          <i className="fa-solid fa-spinner fa-spin text-4xl text-primary"></i>
-          <p className="text-textSecondary font-black tracking-widest uppercase opacity-70">Synchronizing Personnel Records...</p>
+          <div className="w-16 h-16 border-4 border-[#9B8AC7]/30 border-t-[#9B8AC7] rounded-full animate-spin"></div>
+          <p className="text-gray-700 font-bold text-lg">Loading Personnel Records...</p>
         </div>
       </div>
     );
   }
-
+ 
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Action Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-slateBrand tracking-tight">Personnel Overview</h2>
-          <p className="text-sm text-textSecondary font-bold opacity-70">Real-time active workload and objective tracking</p>
-        </div>
-        <div className="flex gap-3">
-          <button 
-            onClick={onOpenImport} 
-            className="px-6 py-2.5 bg-white border-2 border-borderAudvik text-slateBrand font-black rounded-2xl text-[10px] uppercase tracking-widest hover:border-primary/40 hover:text-primary transition-all shadow-sm flex items-center gap-2"
-          >
-            <i className="fa-solid fa-file-excel"></i>
-            Excel Auto-Assign
-          </button>
-          <button 
-            onClick={() => onAction('NEW_PROJECT')} 
-            className="btn-audvik px-6 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2"
-          >
-            <i className="fa-solid fa-plus-circle"></i>
-            Initialize Track
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Team Cards */}
-        <div className="lg:col-span-8 space-y-8">
-          <Card title="Operational Distribution Analytics">
-            <div className="h-64 flex items-center justify-center bg-bgAudvik rounded-[2.5rem] border border-dashed border-borderAudvik">
-              <div className="text-center opacity-40">
-                <i className="fa-solid fa-chart-line text-4xl mb-3 text-primary"></i>
-                <p className="text-sm font-black uppercase tracking-widest text-slateBrand">Predictive Engine Syncing</p>
-                <p className="text-[10px] text-textSecondary font-bold mt-1">Live active task metrics are displayed in the resource cards above</p>
+    <div className="min-h-screen bg-[#E8E4F0] p-8">
+      <div className="max-w-[1900px] mx-auto">
+       
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+         
+          {/* CENTER COLUMN - Main Content (68%) */}
+          <div className="xl:col-span-8 space-y-8">
+           
+            {/* Analytics Dashboard */}
+            <div className="bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-gray-900">Analytics Dashboard</h2>
+                <span className="px-4 py-2 bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] text-white text-xs font-bold rounded-xl shadow-md border-2 border-[#8B7AB7]">
+                  {projects.length} Projects
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mb-8 font-medium leading-relaxed">
+                All the projects under specific manager with options to see the members working in it and button which we can use to see the status of the project.
+              </p>
+ 
+              {/* Projects Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="bg-white border-2 border-gray-300 rounded-2xl p-6 hover:border-[#9B8AC7] hover:shadow-xl transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="font-black text-gray-900 text-base flex-1 pr-2 leading-tight">
+                        {project.name}
+                      </h3>
+                      <span className="text-[11px] bg-[#9B8AC7]/10 text-[#9B8AC7] px-3 py-1.5 rounded-lg font-bold border-2 border-[#9B8AC7]/30 whitespace-nowrap">
+                        {project.status}
+                      </span>
+                    </div>
+ 
+                    {/* Member Count */}
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 font-semibold">
+                      <i className="fa-solid fa-users text-[#9B8AC7]"></i>
+                      <span>{project.memberCount} Members Working</span>
+                    </div>
+ 
+                    {/* Member Avatars */}
+                    <div className="flex items-center gap-2 mb-5">
+                      {project.members.slice(0, 3).map((member, idx) => (
+                        <div
+                          key={idx}
+                          className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#9B8AC7] to-[#8B7AB7] text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow-md"
+                          title={member}
+                        >
+                          {member[0]}
+                        </div>
+                      ))}
+                      {project.memberCount > 3 && (
+                        <div className="w-9 h-9 rounded-xl bg-gray-200 text-gray-700 text-xs font-bold flex items-center justify-center border-2 border-white shadow-md">
+                          +{project.memberCount - 3}
+                        </div>
+                      )}
+                    </div>
+ 
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <button className="w-full py-3 text-sm font-bold text-[#9B8AC7] bg-white border-2 border-[#9B8AC7] rounded-xl hover:bg-[#9B8AC7]/10 transition-all">
+                        View Members
+                      </button>
+                      <button className="w-full py-3 text-sm font-bold text-white bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] rounded-xl hover:from-[#8B7AB7] hover:to-[#7B6AA7] transition-all shadow-lg border-2 border-[#8B7AB7]">
+                        Project Status
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </Card>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black text-slateBrand flex items-center gap-2">
-                <i className="fa-solid fa-users text-primary"></i>
-                Team Resource Overview
-                <span className="text-xs font-bold px-3 py-1 bg-primary/10 text-primary rounded-full">{profileEmployees.length} Members</span>
-              </h3>
+ 
+            {/* Team Members Section - HORIZONTAL SCROLL RESTORED */}
+            <div className="bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-gray-900">Team Resource Overview</h2>
+                <button
+                  onClick={() => setShowAllEmployees(true)}
+                  className="px-6 py-3 text-sm font-bold text-[#9B8AC7] bg-white border-2 border-[#9B8AC7] rounded-xl hover:bg-[#9B8AC7]/10 transition-all shadow-md flex items-center gap-3"
+                >
+                  <i className="fa-solid fa-users"></i>
+                  View All ({profileEmployees.length})
+                </button>
+              </div>
+ 
+              {/* Horizontal Scrollable Member Cards */}
+              <div className="overflow-x-auto pb-4 -mx-2 px-2 custom-scrollbar">
+                <div className="flex gap-6 min-w-min">
+                  {sortedEmployees.map((emp) => (
+                    <HorizontalEmployeeCard
+                      key={emp.id}
+                      employee={emp}
+                      onAction={onAction}
+                      onViewDetails={() => setSelectedEmployeeForDetails(emp)}
+                    />
+                  ))}
+                </div>
+              </div>
+ 
+              {sortedEmployees.length === 0 && (
+                <div className="text-center py-20 text-gray-300">
+                  <i className="fa-solid fa-users-slash text-6xl mb-4"></i>
+                  <p className="text-base font-bold">No team members found</p>
+                </div>
+              )}
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {sortedEmployees.map((emp) => (
-                <EmployeeResourceCard 
-                  key={emp.id} 
-                  employee={emp} 
-                  onAction={onAction} 
-                  onViewDetails={() => setSelectedEmployeeForDetails(emp)}
-                />
-              ))}
+          </div>
+ 
+          {/* RIGHT COLUMN - Action Buttons + Activity Log (32%) */}
+          <div className="xl:col-span-4 space-y-8">
+           
+            {/* Action Buttons */}
+            <div className="bg-white border-2 border-gray-300 rounded-3xl p-6 shadow-xl space-y-4">
+              {/* Excel Upload Button */}
+              <button
+                onClick={onOpenImport}
+                className="w-full py-5 bg-white border-2 border-gray-300 rounded-2xl text-gray-700 font-bold text-base hover:border-[#9B8AC7] hover:bg-[#9B8AC7]/5 transition-all flex items-center justify-center gap-4 shadow-md group"
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform border-2 border-emerald-300">
+                  <i className="fa-solid fa-file-excel text-emerald-600 text-2xl"></i>
+                </div>
+                <span className="text-lg">Excel Upload</span>
+              </button>
+ 
+              {/* New Task Button */}
+              <button
+                onClick={() => onAction('NEW_PROJECT')}
+                className="w-full py-5 bg-gradient-to-r from-[#9B8AC7] to-[#8B7AB7] text-white font-bold text-base rounded-2xl hover:from-[#8B7AB7] hover:to-[#7B6AA7] transition-all flex items-center justify-center gap-4 shadow-xl group border-2 border-[#8B7AB7]"
+              >
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border-2 border-white/30">
+                  <i className="fa-solid fa-plus text-white text-2xl"></i>
+                </div>
+                <span className="text-lg">New Task</span>
+              </button>
+            </div>
+ 
+            {/* Activity Log - FIXED HEIGHT, NO OVERFLOW */}
+            <div className="bg-white border-2 border-gray-300 rounded-3xl p-6 shadow-xl h-[calc(100vh-28rem)] flex flex-col">
+              <div className="flex items-center justify-between mb-6 flex-shrink-0">
+                <h3 className="text-xl font-black text-gray-900">Activity Log</h3>
+                <button
+                  onClick={() => setRefreshKey(k => k + 1)}
+                  className="px-3 py-2 text-[#9B8AC7] text-xs font-bold hover:text-[#8B7AB7] flex items-center gap-2 bg-[#9B8AC7]/10 rounded-lg hover:bg-[#9B8AC7]/20 transition-all border-2 border-[#9B8AC7]/30"
+                >
+                  <i className="fa-solid fa-rotate-right"></i>
+                  SYNC
+                </button>
+              </div>
+ 
+              {/* Scrollable Activity List - Constrained to Container */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                {assignmentLogs.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-gray-300">
+                    <div className="text-center">
+                      <i className="fa-solid fa-inbox text-6xl mb-4"></i>
+                      <p className="text-base font-bold">No recent activity</p>
+                    </div>
+                  </div>
+                ) : (
+                  assignmentLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="bg-white border-2 border-gray-300 rounded-2xl p-5 hover:border-[#9B8AC7] hover:shadow-lg transition-all flex-shrink-0"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 text-sm truncate mb-1.5" title={log.taskName}>
+                            {log.taskName}
+                          </h4>
+                          <p className="text-[11px] text-[#9B8AC7] font-bold uppercase tracking-wide">
+                            {log.projectName}
+                          </p>
+                        </div>
+                        <span className="text-[11px] text-gray-500 font-bold bg-gray-100 px-3 py-1.5 rounded-lg border-2 border-gray-200 whitespace-nowrap ml-3 shadow-sm">
+                          {formatDate(log.assignedAt)}
+                        </span>
+                      </div>
+ 
+                      <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-gradient-to-br from-[#9B8AC7] to-[#8B7AB7] text-white rounded-xl flex items-center justify-center text-xs font-bold shadow-md border-2 border-[#8B7AB7]">
+                            {log.assignedTo[0]}
+                          </div>
+                          <span className="text-sm font-bold text-gray-800 truncate max-w-[120px]">
+                            {log.assignedTo}
+                          </span>
+                        </div>
+                        <span className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border-2 ${getPriorityBadge(log.priority)} shadow-sm`}>
+                          {log.priority}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Right Column: Activity & Vital Metrics */}
-        <div className="lg:col-span-4 space-y-8">
-          <Card title="Team Vital Metrics">
-            <div className="space-y-6">
-              <div className="flex justify-between items-center pb-4 border-b border-borderAudvik">
-                <div>
-                  <p className="text-[10px] font-black text-textSecondary uppercase tracking-widest">Efficiency Rating</p>
-                  <p className="text-xl font-black text-success">98.2%</p>
-                </div>
-                <div className="w-10 h-10 bg-success/5 text-success rounded-2xl flex items-center justify-center border border-success/10 shadow-sm">
-                  <i className="fa-solid fa-gauge-high"></i>
-                </div>
-              </div>
-              <div className="flex justify-between items-center pb-4 border-b border-borderAudvik">
-                <div>
-                  <p className="text-[10px] font-black text-textSecondary uppercase tracking-widest">Active Personnel</p>
-                  <p className="text-xl font-black text-slateBrand">{profileEmployees.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-primary/5 text-primary rounded-2xl flex items-center justify-center border border-primary/10 shadow-sm">
-                  <i className="fa-solid fa-user-gear"></i>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Dispatch Activity Log" actions={<button onClick={() => setRefreshKey(k => k + 1)} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline"><i className="fa-solid fa-rotate-right mr-1"></i> Sync</button>}>
-            <div className="max-h-[600px] overflow-y-auto custom-scrollbar space-y-4 pr-1">
-              {assignmentLogs.length === 0 ? (
-                <div className="text-center py-20 text-textSecondary opacity-30 italic"><p className="text-xs font-bold uppercase">No recent activity found.</p></div>
-              ) : (
-                assignmentLogs.map((log) => (
-                  <div key={log.id} className="bg-white border border-borderDiv rounded-[1.5rem] p-4 hover:border-primary/30 transition-all shadow-sm">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="min-w-0">
-                        <h4 className="font-bold text-slateBrand text-xs truncate" title={log.taskName}>{log.taskName}</h4>
-                        <p className="text-[9px] text-primary font-black uppercase tracking-widest mt-0.5">{log.projectName}</p>
-                      </div>
-                      <span className="text-[9px] text-textSecondary font-black bg-bgAudvik px-2 py-1 rounded-lg border border-borderAudvik whitespace-nowrap shadow-sm">{formatDate(log.assignedAt)}</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-borderDiv border-dashed">
-                      <div className="flex items-center gap-2">
-                         <div className="w-6 h-6 bg-slateBrand text-white rounded-lg flex items-center justify-center text-[9px] font-black shadow-inner">{log.assignedTo[0]}</div>
-                         <span className="text-[10px] font-black text-slateBrand truncate max-w-[100px]">{log.assignedTo}</span>
-                      </div>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${getPriorityColor(log.priority)} uppercase tracking-tighter`}>{log.priority}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-        </div>
       </div>
-
+ 
+      {/* View All Employees Modal */}
+      {showAllEmployees && (
+        <ViewAllEmployeesModal
+          employees={sortedEmployees}
+          onClose={() => setShowAllEmployees(false)}
+          onAction={onAction}
+          onViewDetails={setSelectedEmployeeForDetails}
+        />
+      )}
+ 
+      {/* Employee Details Modal */}
       {selectedEmployeeForDetails && (
-        <EmployeeDetailsModal employee={selectedEmployeeForDetails} onClose={() => setSelectedEmployeeForDetails(null)} />
+        <EmployeeDetailsModal
+          employee={selectedEmployeeForDetails}
+          onClose={() => setSelectedEmployeeForDetails(null)}
+        />
       )}
     </div>
   );
 };
-
+ 
 export default ManagerDashboard;

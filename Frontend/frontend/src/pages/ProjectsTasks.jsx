@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UserRole } from '../types';
 import { projectService } from '../api/projectApi';
 import { taskService } from '../api/taskApi';
@@ -68,6 +68,29 @@ const ProjectsTasks = ({ user }) => {
       setUpdatingTaskId(null);
     }
   };
+
+  // Derive unique employees and their task counts for the current project
+  const projectEmployeeSummary = useMemo(() => {
+    if (!projectTasks.length) return [];
+    
+    const summaryMap = {};
+    
+    projectTasks.forEach(task => {
+      if (task.assignedEmployees && Array.isArray(task.assignedEmployees)) {
+        task.assignedEmployees.forEach(emp => {
+          if (!summaryMap[emp.employeeId]) {
+            summaryMap[emp.employeeId] = {
+              name: emp.employeeName,
+              count: 0
+            };
+          }
+          summaryMap[emp.employeeId].count += 1;
+        });
+      }
+    });
+    
+    return Object.values(summaryMap).sort((a, b) => b.count - a.count);
+  }, [projectTasks]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -171,6 +194,28 @@ const ProjectsTasks = ({ user }) => {
         </div>
       ) : (
         <div className="space-y-6 animate-fadeIn">
+          {/* Resource Summary Section */}
+          {user.role === UserRole.MANAGER && !tasksLoading && projectEmployeeSummary.length > 0 && (
+            <div className="bg-white/50 border border-dashed border-borderAudvik rounded-2xl p-5 animate-slideUp">
+              <div className="flex items-center gap-2 mb-3 text-[11px] font-black text-textSecondary uppercase tracking-widest opacity-80">
+                <i className="fa-solid fa-users text-primary"></i>
+                Employees in this Project ({projectEmployeeSummary.length})
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {projectEmployeeSummary.map((emp, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white border border-borderAudvik rounded-xl shadow-sm"
+                  >
+                    <span className="text-[11px] font-bold text-slateBrand">{emp.name}</span>
+                    <span className="w-1 h-1 bg-borderDiv rounded-full"></span>
+                    <span className="text-[10px] font-black text-primary">{emp.count} {emp.count === 1 ? 'task' : 'tasks'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {tasksLoading ? (
             <div className="py-40 text-center flex flex-col items-center gap-5">
               <i className="fa-solid fa-circle-notch fa-spin text-5xl text-primary"></i>

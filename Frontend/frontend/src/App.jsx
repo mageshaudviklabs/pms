@@ -62,6 +62,16 @@ const App = () => {
         return <TeamOverview onAction={handleActionTrigger} />;
       case 'My Profile':
         return <MyProfile user={currentUser} />;
+      case 'Leave Apply':
+        return (
+          <div className="p-12 text-center animate-fadeIn">
+            <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+              <i className="fa-solid fa-plus"></i>
+            </div>
+            <h3 className="text-xl font-black text-slateBrand uppercase tracking-tight">Leave Application System</h3>
+            <p className="text-textSecondary mt-2 font-bold opacity-60">This module is currently being initialized for your portal.</p>
+          </div>
+        );
       default:
         return <div className="p-12 text-center font-bold opacity-20 uppercase tracking-widest">Module Loading...</div>;
     }
