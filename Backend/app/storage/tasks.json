@@ -1,5 +1,5 @@
 {
-  "lastTaskId": 7,
+  "lastTaskId": 6,
   "tasks": [
     {
       "title": "UI Development",
@@ -18,8 +18,8 @@
           "employeeName": "Aniket Baral"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:02",
+      "assignedAt": "2026-01-19 16:26:02",
       "taskId": 1
     },
     {
@@ -39,8 +39,8 @@
           "employeeName": "Magesh"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:02",
+      "assignedAt": "2026-01-19 16:26:02",
       "taskId": 2
     },
     {
@@ -60,8 +60,8 @@
           "employeeName": "Rishi Raj"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:03",
+      "assignedAt": "2026-01-19 16:26:03",
       "taskId": 3
     },
     {
@@ -81,8 +81,8 @@
           "employeeName": "S Harsha"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:03",
+      "assignedAt": "2026-01-19 16:26:03",
       "taskId": 4
     },
     {
@@ -102,8 +102,8 @@
           "employeeName": "Tanishka Singh"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:03",
+      "assignedAt": "2026-01-19 16:26:03",
       "taskId": 5
     },
     {
@@ -123,30 +123,9 @@
           "employeeName": "Viraj Ray"
         }
       ],
-      "createdAt": "2026-01-19 15:12:36",
-      "assignedAt": "2026-01-19 15:12:36",
+      "createdAt": "2026-01-19 16:26:03",
+      "assignedAt": "2026-01-19 16:26:03",
       "taskId": 6
-    },
-    {
-      "title": "DASHBOARD",
-      "description": "JHGF",
-      "priority": "Medium",
-      "deadline": "2026-02-06",
-      "metadata": {
-        "projectName": "PMS-UPDATE"
-      },
-      "status": "In Progress",
-      "managerId": "MGR001",
-      "managerName": "Rajesh Krishnan",
-      "assignedEmployees": [
-        {
-          "employeeId": "EMP001",
-          "employeeName": "Aniket Baral"
-        }
-      ],
-      "createdAt": "2026-01-19 15:13:59",
-      "assignedAt": "2026-01-19 15:14:00",
-      "taskId": 7
     }
   ]
 }

@@ -240,16 +240,8 @@ const MyProfile = ({ user }) => {
                       <div className="absolute -left-[41px] top-1 w-4 h-4 rounded-full border-4 border-white bg-primary shadow-sm"></div>
                       <div className="bg-white p-6 border border-borderAudvik rounded-[2rem] shadow-sm flex items-center gap-6">
                         <span className="text-[10px] font-black text-textSecondary opacity-40 uppercase tracking-tighter whitespace-nowrap min-w-[100px]">
-                          {item.completedAt || item.assignedAt
-                            ? new Date(item.completedAt || item.assignedAt).toLocaleString([], {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })
-                            : "—"}
+                          {new Date(item.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
-
                         <p className="text-xs font-bold text-slateBrand flex-1">
                           <span className="text-primary">{item.taskTitle || item.title}</span> 
                           <span className="mx-2 text-[10px] text-textSecondary opacity-60 font-medium">was updated to</span>

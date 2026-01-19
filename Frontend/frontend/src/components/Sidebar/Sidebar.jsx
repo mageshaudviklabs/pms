@@ -14,7 +14,7 @@ const Sidebar = ({ activeTab, setActiveTab, role, onLogout }) => {
     { name: 'Dashboard', icon: 'fa-table-columns' },
     { name: 'Projects & Tasks', icon: 'fa-diagram-project' },
     { name: 'My Profile', icon: 'fa-user' },
-    { name: 'Leave Apply', icon: 'fa-plus' },
+    // { name: 'Leave Apply', icon: 'fa-plus' },
     { name: 'Help Desk', icon: 'fa-circle-question' }
   ];
 
@@ -50,3 +50,4 @@ const Sidebar = ({ activeTab, setActiveTab, role, onLogout }) => {
 };
 
 export default Sidebar;
+ 
